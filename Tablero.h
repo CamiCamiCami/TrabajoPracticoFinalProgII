@@ -37,7 +37,7 @@ char verCasillaTablero(Tablero tablero, char fila, char columna);
 
 
 /* Coloca una ficha en el tablero. Toma un tablero, un char representando la fila y la columna y otro para el color de ficha. 
- *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolvera 1 si puedo colocar la ficha y 0 en caso contrario. 
+ *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolvera 1 si pudo colocar la ficha y 0 en caso contrario. 
  */
 int colocarFicha(Tablero tablero, char fila, char columna, char color);
 

@@ -2,6 +2,7 @@
 #define TABLERO_OTHELLO
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 #define CASILLA_VACIA 'X'
@@ -13,14 +14,14 @@ typedef char** Tablero;
 
 /* Crea e iniciaiza un tablero de Othello 8x8. 
  * El tablero inicial que devuelve se ve siempre de la siguiente forma:
- *   XXXXXXXX
- *   XXXXXXXX
- *   XXXXXXXX
- *   XXXBNXXX
- *   XXXNBXXX
- *   XXXXXXXX
- *   XXXXXXXX
- *   XXXXXXXX
+ *      XXXXXXXX
+ *      XXXXXXXX
+ *      XXXXXXXX
+ *      XXXBNXXX
+ *      XXXNBXXX
+ *      XXXXXXXX
+ *      XXXXXXXX
+ *      XXXXXXXX
  */
 Tablero crearTablero();
 
@@ -46,6 +47,34 @@ int colocarFicha(Tablero tablero, char fila, char columna, char color);
  *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolvera 1 si hay jugadas legales y 0 e caso contrario. 
  */
 int tieneJugada(Tablero tablero, char color);
+
+
+/* Escribe los contenidos del tablero a un archivo. El contenido del archivo tendrá el formato:
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ * Donde C sera X (si la casilla estaba vacia), B (si habia una ficha blanca) o N (si habia una ficha negra) segun corresponda.
+ */
+void escribirTablero(FILE* archivo, Tablero tablero);
+
+
+/* Imprime los contenidos del tablero. Tendrá el formato:
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ *      CCCCCCCC
+ * Donde C sera X (si la casilla estaba vacia), B (si habia una ficha blanca) o N (si habia una ficha negra) segun corresponda.
+ */
+void imprimirTablero(Tablero tablero);
 
 
 /* Libera la memoria asignada al Tablero

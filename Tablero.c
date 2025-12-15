@@ -31,11 +31,6 @@ char colorOpuesto(char color) {
 }
 
 
-int colorValido(char color) {
-    return color == FICHA_BLANCA || color == FICHA_NEGRA;
-}
-
-
 
 /* Funciones auxiliares */
 
@@ -203,6 +198,11 @@ void escribirTablero(FILE* archivo, Tablero tablero) {
 
 void imprimirTablero(Tablero tablero) {
     escribirTablero(stdout, tablero);
+}
+
+
+int colorValido(char color) {
+    return color == FICHA_BLANCA || color == FICHA_NEGRA;
 }
 
 

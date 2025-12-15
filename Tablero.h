@@ -77,6 +77,11 @@ void escribirTablero(FILE* archivo, Tablero tablero);
 void imprimirTablero(Tablero tablero);
 
 
+/* Toma el color de una ficha y determina si es valido.
+ */
+int colorValido(char color);
+
+
 /* Libera la memoria asignada al Tablero
  */
 void liberarTablero(Tablero tablero);

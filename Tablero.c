@@ -63,7 +63,7 @@ int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, char fil
     // Avanza hasta la segunda casilla en la direccion, porque la primera ya fue chequeada.
     char fila = sumarFila(filaInsertado, 2*mov_fila);
     char columna = sumarColumna(columnaInsertado, 2*mov_columna);
-    int direccionValida = 0; // si es valida = 1, si es invalida = -1, si no se sabe = 0
+    int direccionValida = 0; // si es valida = 1, si es invalida = -1, si todavia no se sabe = 0
     while (!direccionValida) {
         if (dentroTablero(fila, columna) && verCasillaTablero(tablero, fila, columna) != CASILLA_VACIA) {
             if(verCasillaTablero(tablero, fila, columna) == colorInsertado) {

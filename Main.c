@@ -10,9 +10,9 @@
 // 2.0) Asignar memoria para un tablero e inicializarlo
 // 2.1) Procesar lineas
 // 2.1.1) Si la linea está vacia -> 2.1.1.1 sino -> 2.1.2
-// 2.1.1.1) Si el jugador no tiene movimientos disponibles -> 2.1.5 sino -> INV 
+// 2.1.1.1) Si el jugador no tiene movimientos disponibles -> 2.1.5 sino -> 6 
 // 2.1.2) Si la linea tiene formato correcto -> 2.1.2 sino -> 5
-// 2.1.3) Si la jugada es valida -> 2.1.3 sino -> INV
+// 2.1.3) Si la jugada es valida -> 2.1.3 sino -> 6
 // 2.1.4) Aplicar la jugada en el tablero
 // 2.1.5) Cambiar de jugador
 // 2.2) Repetir 2.1 hasta que no queden lineas
@@ -27,7 +27,7 @@
 // 6.2) Imprimir jugador actual -> 7
 // 7) Finalizar
 // 7.1) Liberar el tablero
-// 7.2) Devolver 0 si salio por 3 o 4 y 1 si salio por 5 o 6.
+// 7.2) Devolver 0 si salio por 3, 4 o 6 y otro valor si salio por 5.
 
 
 /* Colocar una ficha */
@@ -59,23 +59,9 @@
 
 
 #include "Tablero.h"
+#include "Lectura.h"
 #include <stdio.h>
-#include <string.h>
 
-
-#define MAXLARGONOMBRE 50
-
-
-/* Errores de Usuario */
-#define MALUSO 1
-#define NOPUDOABRIR 2
-/* Errores de Formato */
-#define NOPUDOLEER 3
-#define CAMPOSINSUFICIENTES 4
-#define NOMRELARGO 5
-#define COLORINVALIDO 6
-#define MISMOCOLOR 7
-#define MISMONOMBRE 8
 
 
 void imprimirErrorDeUso() {
@@ -86,99 +72,7 @@ void imprimirErrorDeUso() {
 void imprimirErrorDeArchivo(char path[]) {
     printf("No se pudo abrir el archivo \"%s\"\n", path);
     imprimirErrorDeUso(); // Un error de apertura puede deberse a un error de uso.
-}
-
-
-void eliminarEspaciosFinales(char nombre[MAXLARGONOMBRE + 1], int largo) {
-    if(nombre[largo-1] == ' ') {
-        nombre[largo-1] = '\0';
-        eliminarEspaciosFinales(nombre, largo-1);
-    }
-}
-
-
-int chequearLargo(char nombre[MAXLARGONOMBRE + 1]) {
-    char ultimo_caracter_array = nombre[MAXLARGONOMBRE];
-    nombre[MAXLARGONOMBRE] = '\0'; // Necesario para poder asegurar que strlen se comporta correctamente
-    int largo = strlen(nombre);
-    return largo < MAXLARGONOMBRE || ultimo_caracter_array == '\0';
-}
-
-
-char leerNombreConColor(FILE* archivo, char nombre[MAXLARGONOMBRE + 1], int* errorFormato) {
-    char color;
-    int asignado = fscanf(archivo, " %[^,\n], %c ", nombre, &color);
-    if(asignado == EOF) {
-        // No pudo leer.
-        *errorFormato = NOPUDOLEER;
-        return '\0'; // Return invalido porque la funcion finaliza con un error.
-    }
-    if (asignado != 2) {
-        // No pudo leer ambos campos.
-        *errorFormato = CAMPOSINSUFICIENTES;
-        return '\0';
-    }
-    if(!colorValido(color)) {
-        // El color asignado al jugador no es un color valido (blanco o negro).
-        *errorFormato = COLORINVALIDO;
-        return '\0';
-    }
-    if (!chequearLargo(nombre)) {
-        // El nombre es demasiado largo.
-        *errorFormato = NOMRELARGO;
-        return '\0';
-    }
-    eliminarEspaciosFinales(nombre, strlen(nombre));
-    return color;
-}
-
-
-void leerNombreJugadores(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1], int* errorFormato) {
-    char jugador1[MAXLARGONOMBRE + 1], jugador2[MAXLARGONOMBRE + 1];
-    char color1 = leerNombreConColor(archivo, jugador1, errorFormato);
-    if (*errorFormato != 0) return;
-    char color2 = leerNombreConColor(archivo, jugador2, errorFormato);
-    if (*errorFormato != 0) return;
-    if(!strcmp(jugador1, jugador2)) {
-        // Los nombres son iguales.
-        *errorFormato = MISMONOMBRE;
-        return;
-    }
-    if(color1 == FICHA_BLANCA && color2 == FICHA_NEGRA) {
-        strcpy(nombreBlanco, jugador1);
-        strcpy(nombreNegro, jugador2);
-    } else if (color2 == FICHA_BLANCA && color1 == FICHA_NEGRA) {
-        strcpy(nombreBlanco, jugador2);
-        strcpy(nombreNegro, jugador1);
-    } else {
-        // Ambos jugadores tienen el mismo color.
-        *errorFormato = MISMOCOLOR;
-    }
-}
-
-char leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1], int* errorFormato) {
-    leerNombreJugadores(archivo, nombreNegro, nombreBlanco, errorFormato);
-    if (*errorFormato != 0) return '\0';
-    char color_inicio;
-    int leidos = fscanf(archivo, " %c ", &color_inicio);
-    if(leidos == EOF) {
-        // No pudo leer.
-        *errorFormato = NOPUDOLEER;
-        return '\0'; // Return invalido porque la funcion finaliza con un error.
-    }
-    if (leidos != 1) {
-        // No pudo leer el campo.
-        *errorFormato = CAMPOSINSUFICIENTES;
-        return '\0';
-    }
-    if(!colorValido(color_inicio)) {
-        // El color que arranca no es un color valido (blanco o negro).
-        *errorFormato = COLORINVALIDO;
-        return '\0';
-    }
-
-    return color_inicio;
-}
+} 
 
 
 void imprimirErrorFormato(int ERROR) {

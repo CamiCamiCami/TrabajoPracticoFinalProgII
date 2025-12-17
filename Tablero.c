@@ -152,7 +152,7 @@ char verCasillaTablero(Tablero tablero, char fila, char columna) {
 
 int colocarFicha(Tablero tablero, char fila, char columna, char color) {
     if(!(dentroTablero(fila, columna) && verCasillaTablero(tablero, fila, columna) == CASILLA_VACIA && colorValido(color))) {
-        return 0;
+        return FICHAILEGAL;
     }
     DEBUG_PRINT("Valida de base\n");
     int encontroDireccionValida = 0;

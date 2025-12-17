@@ -125,7 +125,7 @@ void imprimirJugadaInvalida(int error, int nroJugada, char jugador[]) {
 }
 
 
-int validarArgumentos(int args, char** argv) {
+int validarArgumentos(int args) {
     if(args != 3) {
         // Faltan/sobran argumentos.
         imprimirErrorDeUso();
@@ -148,7 +148,7 @@ int abrirArchivo(char direccion[], const char modo[], FILE** archivo) {
 
 int main(int args, char** argv) {
     int errorUso = 0, errorFormato = 0, hizoJugadaInvalida = 0; // Variables de error
-    errorUso = validarArgumentos(args, argv);
+    errorUso = validarArgumentos(args);
     if(errorUso) 
         return errorUso;
     char *direccionEntrada = argv[1], *direccionSalida = argv[2];

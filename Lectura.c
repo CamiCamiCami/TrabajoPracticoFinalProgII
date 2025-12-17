@@ -84,6 +84,7 @@ int leerNombreJugadores(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], cha
         // Ambos jugadores tienen el mismo color.
         return MISMOCOLOR;
     }
+    return 0;
 }
 
 
@@ -111,8 +112,7 @@ int leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombr
     int encontroError = 0;
     encontroError = leerNombreJugadores(archivo, nombreNegro, nombreBlanco);
     if (encontroError) return encontroError;
-    char color_inicio;
-    int leidos = fscanf(archivo, " %c \n", &color_inicio);
+    int leidos = fscanf(archivo, " %c \n", colorInicial);
     if(leidos == EOF) {
         // No pudo leer.
         return NOPUDOLEER;
@@ -121,12 +121,12 @@ int leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombr
         // No pudo leer el campo.
         return MALFORMATOCABECERA;
     }
-    if(!colorValido(color_inicio)) {
+    if(!colorValido(*colorInicial)) {
         // El color que arranca no es un color valido (blanco o negro).
         return COLORINVALIDO;
     }
 
-    return color_inicio;
+    return 0;
 }
 
 

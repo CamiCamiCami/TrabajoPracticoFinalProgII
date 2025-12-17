@@ -103,7 +103,7 @@ void imprimirErrorFormato(int ERROR) {
         printf("El formato de cada una de las lineas debe ser:\n\n[columna de la jugada][fila de la jugada]\n");
         break;
     default:
-        printf("Hubo un error en la lectura de la cabecera.\n");
+        printf("Hubo un error en el formato del archivo de entrada.\n");
         break;
     }
 }
@@ -125,23 +125,40 @@ void imprimirJugadaInvalida(int error, int nroJugada, char jugador[]) {
 }
 
 
-int main(int args, char** argv) {
+int validarArgumentos(int args, char** argv) {
     if(args != 3) {
         // Faltan/sobran argumentos.
         imprimirErrorDeUso();
         return MALUSO;
     }
-    char *direccionEntrada = argv[1], *direccionSalida = argv[2];
-    FILE* archivoEntrada = fopen(direccionEntrada, "r");
-    if (archivoEntrada == NULL) {
+    return 0;
+} 
+
+
+int abrirArchivo(char direccion[], const char modo[], FILE** archivo) {
+    *archivo = fopen(direccion, modo);
+    if (*archivo == NULL) {
         // No pudo abrir correctamente el archivo.
-        imprimirErrorDeArchivo(direccionEntrada);
+        imprimirErrorDeArchivo(direccion);
         return NOPUDOABRIR;
     }
+    return 0;
+}
 
-    int errorFormato = 0;
+
+int main(int args, char** argv) {
+    int errorUso = 0, errorFormato = 0, hizoJugadaInvalida = 0; // Variables de error
+    errorUso = validarArgumentos(args, argv);
+    if(errorUso) 
+        return errorUso;
+    char *direccionEntrada = argv[1], *direccionSalida = argv[2];
+    FILE* archivoEntrada;
+    errorUso = abrirArchivo(direccionEntrada, "r", &archivoEntrada);
+    if(errorUso) 
+        return errorUso;
     char jugadorN[MAXLARGONOMBRE + 1], jugadorB[MAXLARGONOMBRE + 1];
-    char colorJugando = leerCabecera(archivoEntrada, jugadorN, jugadorB, &errorFormato);
+    char colorJugando;
+    errorFormato = leerCabecera(archivoEntrada, jugadorN, jugadorB, &colorJugando);
     if (errorFormato) {
         // Hubo un error leyendo la cabecera.
         imprimirErrorFormato(errorFormato);
@@ -151,21 +168,21 @@ int main(int args, char** argv) {
 
     Tablero tablero = crearTablero();
     char filajugada, columnajugada;
-    int jugadaIlegal = 0, nroJugada = 0;
-    while(!jugadaIlegal && !errorFormato && !feof(archivoEntrada)) {
-        nroJugada++;
+    int nroLinea = 3; // La cabecera ocupa 3 lineas
+    while(!hizoJugadaInvalida && !errorFormato && !feof(archivoEntrada)) {
+        nroLinea++;
         if(lineaVacia(archivoEntrada)) {
             if(tieneJugada(tablero, colorJugando)) {
                 // El jugador paso cuando tenia una jugada.
-                jugadaIlegal = PASOILEGAL;
+                hizoJugadaInvalida = PASOILEGAL;
             } else {
                 colorJugando = colorOpuesto(colorJugando);
             }
         } else {
             errorFormato = leerLinea(archivoEntrada, &filajugada, &columnajugada);
             if(!errorFormato) {
-                jugadaIlegal = colocarFicha(tablero, filajugada, columnajugada, colorJugando);
-                if(!jugadaIlegal) {
+                hizoJugadaInvalida = colocarFicha(tablero, filajugada, columnajugada, colorJugando);
+                if(!hizoJugadaInvalida) {
                     colorJugando = colorOpuesto(colorJugando);
                 }
             }
@@ -178,13 +195,15 @@ int main(int args, char** argv) {
         imprimirErrorFormato(errorFormato);
         liberarTablero(tablero);
         return errorFormato;
-    } else if(jugadaIlegal) {
+    } 
+    if(hizoJugadaInvalida) {
         // Se produjo una jugada ilegal
-        imprimirJugadaInvalida(jugadaIlegal, nroJugada, colorJugando == FICHA_BLANCA ? jugadorB : jugadorN);
+        imprimirJugadaInvalida(hizoJugadaInvalida, nroLinea, colorJugando == FICHA_BLANCA ? jugadorB : jugadorN);
         imprimirTablero(tablero);
         liberarTablero(tablero);
         return 0; //  ????
-    } else if(!tieneJugada(tablero, FICHA_BLANCA) && !tieneJugada(tablero, FICHA_NEGRA)) { // Es necesario?
+    }
+    if(!tieneJugada(tablero, FICHA_BLANCA) && !tieneJugada(tablero, FICHA_NEGRA)) { // Es necesario?
         // Termino el juego
         switch (darGanador(tablero)) {
         case FICHA_NEGRA:
@@ -199,30 +218,21 @@ int main(int args, char** argv) {
         }
         liberarTablero(tablero);
         return 0;
-    } else {
-        // El juego quedo a medias
-        FILE* archivoSalida = fopen(direccionSalida, "w");
-        if (archivoSalida == NULL) {
-            // No pudo abrir correctamente el archivo.
-            imprimirErrorDeArchivo(direccionSalida);
-            liberarTablero(tablero);
-            return NOPUDOABRIR;
-        }
-        escribirTablero(archivoSalida, tablero);
-        fprintf(archivoSalida, "%c\n", colorJugando);
-        liberarTablero(tablero);
-        fclose(archivoSalida);
-        return 0;
     }
-
+        
+    // El juego quedo a medias
+    FILE* archivoSalida = fopen(direccionSalida, "w");
+    if (archivoSalida == NULL) {
+        // No pudo abrir correctamente el archivo.
+        imprimirErrorDeArchivo(direccionSalida);
+        liberarTablero(tablero);
+        return NOPUDOABRIR;
+    }
+    escribirTablero(archivoSalida, tablero);
+    fprintf(archivoSalida, "%c\n", colorJugando);
+    liberarTablero(tablero);
+    fclose(archivoSalida);
     return 0;
-
-
-
-
-
-
-
 }
 
 

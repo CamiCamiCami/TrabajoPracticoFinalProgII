@@ -17,12 +17,12 @@ int columna2int(char columna) {
 
 
 char sumarFila(char fila, int mov) {
-    return (char)(fila2int(fila) + mov);
+    return (char)((int)fila + mov);
 }
 
 
 char sumarColumna(char columna, int mov) {
-    return (char)(columna2int(columna) + mov);
+    return (char)((int)columna + mov);
 }
 
 
@@ -80,8 +80,8 @@ int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, char fil
  *      la posicion de insercion y la direccion a chequear.
  */
 int direccionValida(Tablero tablero, char colorInsertado, char filaInsertado, char columnaInsertado, int mov_fila, int mov_columna) {
-    return chequeaPrimeraCasillaDireccion(tablero, colorInsertado, filaInsertado, columnaInsertado, mov_fila, mov_columna) 
-           && chequeaUltimaCasillaDireccion(tablero, colorInsertado, filaInsertado, columnaInsertado, mov_fila, mov_columna);
+    return chequeaPrimeraCasillaDireccion(tablero, colorInsertado, filaInsertado, columnaInsertado, mov_fila, mov_columna)
+        && chequeaUltimaCasillaDireccion(tablero, colorInsertado, filaInsertado, columnaInsertado, mov_fila, mov_columna);
 }
 
 
@@ -154,14 +154,22 @@ int colocarFicha(Tablero tablero, char fila, char columna, char color) {
     if(!(dentroTablero(fila, columna) && verCasillaTablero(tablero, fila, columna) == CASILLA_VACIA && colorValido(color))) {
         return 0;
     }
+    DEBUG_PRINT("Valida de base\n");
     int encontroDireccionValida = 0;
     for (int mov_fila = -1; mov_fila <= 1; mov_fila++) {
         for (int mov_col = -1; mov_col <= 1; mov_col++) {
+            DEBUG_PRINT("analizando %i %i: ", mov_fila, mov_col);
             if((mov_col != 0 || mov_fila != 0) && direccionValida(tablero, color, fila, columna, mov_fila, mov_col)) {
+                DEBUG_PRINT("VALIDO\n");
                 encontroDireccionValida = 1;
                 marcarDireccion(tablero, color, fila, columna, mov_fila, mov_col);
+            } else {
+                DEBUG_PRINT("INVALIDO\n");
             }
         }
+    }
+    if (encontroDireccionValida) {
+        setCasillaTablero(tablero, fila, columna, color);
     }
     return encontroDireccionValida ? 0 : FICHAILEGAL;
 }

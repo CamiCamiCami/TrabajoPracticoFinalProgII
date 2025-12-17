@@ -5,6 +5,7 @@
 /* Funciones auxiliares */
 
 
+
 /* Determina si un caracter es un espacio, una tabulacion o un retorno de carro y deberian, por lo tanto, ser ignorados.
  */
 int esEspacio(char c) {
@@ -33,50 +34,45 @@ int chequearLargo(char nombre[MAXLARGONOMBRE + 1]) {
 
 
 /* Lee una linea del archivo y asocia un nombre de jugador con un color. Toma el archivo, una cadena en la que guardar el nombre que leera
- *  y un puntero a int donde expresar valores de error.
- * De encontrar un error de formato devolvera '\0' y llenara errorFormato con el valor correspondiente.
+ *  y un puntero a char donde guardar su color asociado. Devuelve 0 si leyo correctamente y un error de formato en caso contrario.
  */
-char leerNombreConColor(FILE* archivo, char nombre[MAXLARGONOMBRE + 1], int* errorFormato) {
-    char color;
-    int asignado = fscanf(archivo, " %[^,\n], %c \n", nombre, &color);
+int leerNombreConColor(FILE* archivo, char nombre[MAXLARGONOMBRE + 1], char* color) {
+    int asignado = fscanf(archivo, " %[^,\n], %c \n", nombre, color);
     if(asignado == EOF) {
         // No pudo leer.
-        *errorFormato = NOPUDOLEER;
-        return '\0'; // Return invalido porque la funcion finaliza con un error.
+        return NOPUDOLEER;
     }
     if (asignado != 2) {
         // No pudo leer ambos campos.
-        *errorFormato = MALFORMATOCABECERA;
-        return '\0';
+        return MALFORMATOCABECERA;
     }
-    if(!colorValido(color)) {
+    if(!colorValido(*color)) {
         // El color asignado al jugador no es un color valido (blanco o negro).
-        *errorFormato = COLORINVALIDO;
-        return '\0';
+        return COLORINVALIDO;
     }
     if (!chequearLargo(nombre)) {
         // El nombre es demasiado largo.
-        *errorFormato = NOMRELARGO;
-        return '\0';
+        return NOMRELARGO;
     }
     eliminarEspaciosFinales(nombre, strlen(nombre));
-    return color;
+    return 0;
 }
 
 
-/* Lee las dos primeras lineas del archivo y asocia a ambos jugadores con sus respectivos colores. Toma el archivo, dos cadenas en la que guardar los nombre que lea
- *  y un puntero a int donde expresar valores de error. De encontrar un error de formato llenara errorFormato con el valor correspondiente.
+/* Lee las dos primeras lineas del archivo y asocia a ambos jugadores con sus respectivos colores. Toma el archivo y dos cadenas en la que guardar los nombre que lea.
+ *  Devuelve 0 si leyo correctamente y un error de formato en caso contrario.
  */
-void leerNombreJugadores(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1], int* errorFormato) {
+int leerNombreJugadores(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1]) {
+    int encontroError = 0;
     char jugador1[MAXLARGONOMBRE + 1], jugador2[MAXLARGONOMBRE + 1];
-    char color1 = leerNombreConColor(archivo, jugador1, errorFormato);
-    if (*errorFormato != 0) return;
-    char color2 = leerNombreConColor(archivo, jugador2, errorFormato);
-    if (*errorFormato != 0) return;
+    char color1, color2;
+    encontroError = leerNombreConColor(archivo, jugador1, &color1);
+    if (encontroError) return encontroError;
+    encontroError = leerNombreConColor(archivo, jugador2, &color2);
+    if (encontroError) return encontroError;
     if(!strcmp(jugador1, jugador2)) {
         // Los nombres son iguales.
-        *errorFormato = MISMONOMBRE;
-        return;
+        return MISMONOMBRE;
     }
     if(color1 == FICHA_BLANCA && color2 == FICHA_NEGRA) {
         strcpy(nombreBlanco, jugador1);
@@ -86,7 +82,7 @@ void leerNombreJugadores(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], ch
         strcpy(nombreNegro, jugador1);
     } else {
         // Ambos jugadores tienen el mismo color.
-        *errorFormato = MISMOCOLOR;
+        return MISMOCOLOR;
     }
 }
 
@@ -111,25 +107,23 @@ int esFinalDeLinea(FILE* archivo) {
 
 
 
-char leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1], int* errorFormato) {
-    leerNombreJugadores(archivo, nombreNegro, nombreBlanco, errorFormato);
-    if (*errorFormato != 0) return '\0';
+int leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1], char* colorInicial) {
+    int encontroError = 0;
+    encontroError = leerNombreJugadores(archivo, nombreNegro, nombreBlanco);
+    if (encontroError) return encontroError;
     char color_inicio;
     int leidos = fscanf(archivo, " %c \n", &color_inicio);
     if(leidos == EOF) {
         // No pudo leer.
-        *errorFormato = NOPUDOLEER;
-        return '\0'; // Return invalido porque la funcion finaliza con un error.
+        return NOPUDOLEER;
     }
     if (leidos != 1) {
         // No pudo leer el campo.
-        *errorFormato = MALFORMATOCABECERA;
-        return '\0';
+        return MALFORMATOCABECERA;
     }
     if(!colorValido(color_inicio)) {
         // El color que arranca no es un color valido (blanco o negro).
-        *errorFormato = COLORINVALIDO;
-        return '\0';
+        return COLORINVALIDO;
     }
 
     return color_inicio;
@@ -141,20 +135,19 @@ int lineaVacia(FILE* archivo) {
     if(esFinalDeLinea(archivo)) {
         return 1;
     } else {
-        fseek(archivo, pos, SEEK_CUR);  // buscarSaltoLinea avanzo el cursor del archivo.
+        fseek(archivo, pos, SEEK_SET);  // buscarSaltoLinea avanzo el cursor del archivo.
         return 0;
     }
 }
 
 
 int leerLinea(FILE* archivo, char* fila, char* columna) {
-    int escaneado = fscanf(archivo, "%c%c", columna, fila);
-    printf("%i, %i, %c, %c, %i\n", errno, escaneado, *fila == '\n', *columna == '\n', esFinalDeLinea(archivo));
-    if (escaneado != 2 || *fila == '\n' || *columna == '\n' || !esFinalDeLinea(archivo)) {
-        // Todavia no deberia aparecer un salto de linea.
-        return MALFORMATOLINEA;
-    } else {
+    int escaneado = fscanf(archivo, " %c%c", columna, fila);
+    if (escaneado == 2 && *fila != '\n' && *columna != '\n' && esFinalDeLinea(archivo)) {
         // No hubo problemas en la lectura.
         return 0;
+    } else {
+        // Todavia no deberia aparecer un salto de linea.
+        return MALFORMATOLINEA;
     }
 }

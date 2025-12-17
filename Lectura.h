@@ -9,9 +9,9 @@
 #include <errno.h>
 
 
-/* Lee la cabecera del archivo. Toma un descriptor de archivo, dos arreglos en los que pondra los nombres de los jugadores y un argumento de error.
- *  Devuelve el color del jugador que empieza (Siempre sera FICHA_BLANCA o FICHA_NEGRA).
- * De encontrar un error de formato devolvera '\0' y llenara errorFormato con uno de los siguentes valores:
+/* Lee la cabecera del archivo. Toma un descriptor de archivo, dos arreglos en los que pondra los nombres de los jugadores y un puntero a char 
+ *  donde poner el color inicial (Siempre sera FICHA_BLANCA o FICHA_NEGRA). Devuelve 0 si pudo leer correctamente, si no va a
+ *  devolver uno de los siguientes codigos de error:
  *    >NOPUDOLEER: Llego al final del archivo antes de que termine la cabecera.
  *    >CAMPOSINSUFICIENTES: No pudo encontrar la informacion que buscaba.
  *    >NOMBRELARGO: El nombre de uno de los jugadores excede MAXLARGONOMBRE.
@@ -19,7 +19,7 @@
  *    >MISMOCOLOR: Ambos jugadores fueron asignados al mismo color.
  *    >MISMONOMBRE: Ambos jugadores fueron asignados el mismo nombre.
  */
-char leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1], int* errorFormato);
+int leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1], char* colorInicial);
 
 
 /* Determina si la siguiente linea está vacia. Toma un descriptor de archivo. Asume que el cursor del archivo esta al inicio de un linea.

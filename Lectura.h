@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "Constantes.h"
+#include "Tablero.h"
+#include <errno.h>
 
 
 /* Lee la cabecera del archivo. Toma un descriptor de archivo, dos arreglos en los que pondra los nombres de los jugadores y un argumento de error.

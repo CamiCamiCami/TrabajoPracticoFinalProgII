@@ -99,6 +99,9 @@ void imprimirErrorFormato(int ERROR) {
     case MISMONOMBRE:
         printf("Los dos jugadores fueron dados el mismo nombre. Por favor asigneles nombres distintos\n");
         break;
+    case MALFORMATOLINEA:
+        printf("El formato de cada una de las lineas debe ser:\n\n[columna de la jugada][fila de la jugada]\n");
+        break;
     default:
         printf("Hubo un error en la lectura de la cabecera.\n");
         break;
@@ -198,10 +201,10 @@ int main(int args, char** argv) {
         return 0;
     } else {
         // El juego quedo a medias
-        FILE* archivoSalida = fopen(direccionEntrada, "w");
-        if (archivoEntrada == NULL) {
+        FILE* archivoSalida = fopen(direccionSalida, "w");
+        if (archivoSalida == NULL) {
             // No pudo abrir correctamente el archivo.
-            imprimirErrorDeArchivo(direccionEntrada);
+            imprimirErrorDeArchivo(direccionSalida);
             liberarTablero(tablero);
             return NOPUDOABRIR;
         }

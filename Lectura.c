@@ -91,14 +91,14 @@ void leerNombreJugadores(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], ch
 }
 
 
-/* Busca el proximo caracter que no sea un espacio para ver si es un salto de linea. Toma un descriptor de archivo y devuelve 1 si encontro un '\n' y 0 en caso contrario.
+/* Revisa si lo unico que quedan en la linea actual son espacios. Toma un descriptor de archivo y devuelve 1 si encontro el final de la linea y 0 en caso contrario.
  */
-int haySaltoLinea(FILE* archivo) {
+int esFinalDeLinea(FILE* archivo) {
     char c = ' ';
-    while(esEspacio(c)) {
-        fscanf("%c", &c); // cuidado cuando llega a EOF
+    while(esEspacio(c) && !feof(archivo)) {
+        fscanf(archivo, "%c", &c); // cuidado cuando llega a EOF
     }
-    if(c == '\n') {
+    if(c == '\n' || feof(archivo)) {
         return 1;
     } else {
         return 0;
@@ -138,7 +138,7 @@ char leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nomb
 
 int lineaVacia(FILE* archivo) {
     long pos = ftell(archivo);
-    if(haySaltoLinea(archivo)) {
+    if(esFinalDeLinea(archivo)) {
         return 1;
     } else {
         fseek(archivo, pos, SEEK_CUR);  // buscarSaltoLinea avanzo el cursor del archivo.
@@ -148,8 +148,9 @@ int lineaVacia(FILE* archivo) {
 
 
 int leerLinea(FILE* archivo, char* fila, char* columna) {
-    int escaneado = fscanf(" %c%c", columna, fila);
-    if (escaneado != 2 || *fila == '\n' || *columna == '\n' || !haySaltoLinea(archivo)) {
+    int escaneado = fscanf(archivo, "%c%c", columna, fila);
+    printf("%i, %i, %c, %c, %i\n", errno, escaneado, *fila == '\n', *columna == '\n', esFinalDeLinea(archivo));
+    if (escaneado != 2 || *fila == '\n' || *columna == '\n' || !esFinalDeLinea(archivo)) {
         // Todavia no deberia aparecer un salto de linea.
         return MALFORMATOLINEA;
     } else {

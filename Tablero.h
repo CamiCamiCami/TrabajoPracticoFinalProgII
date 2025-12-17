@@ -1,13 +1,12 @@
 #ifndef TABLERO_OTHELLO
 #define TABLERO_OTHELLO
 
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include "Constantes.h"
 
-#define CASILLA_VACIA 'X'
-#define FICHA_NEGRA 'N'
-#define FICHA_BLANCA 'B'
 
 typedef char** Tablero;
 
@@ -38,7 +37,7 @@ char verCasillaTablero(Tablero tablero, char fila, char columna);
 
 
 /* Coloca una ficha en el tablero. Toma un tablero, un char representando la fila y la columna y otro para el color de ficha. 
- *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolvera 1 si pudo colocar la ficha y 0 en caso contrario. 
+ *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolvera 0 si pudo colocar la ficha y FICHAILEGAL en caso contrario. 
  */
 int colocarFicha(Tablero tablero, char fila, char columna, char color);
 
@@ -82,8 +81,19 @@ void imprimirTablero(Tablero tablero);
 int colorValido(char color);
 
 
+/* Toma el color de una ficha y devuelve su opuesto.
+ */
+char colorOpuesto(char color);
+
+
+/* Toma un tablero y determina cual jugador tiene mas fichas. Devuelve siempre FICHA_NEGRA, FICHA_BLANCA o CASILLA_VACIA (en caso de empate).
+ */
+char darGanador(Tablero Tablero);
+
+
 /* Libera la memoria asignada al Tablero
  */
 void liberarTablero(Tablero tablero);
+
 
 #endif

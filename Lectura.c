@@ -2,16 +2,22 @@
 
 
 
-/* Funciones Auxiliares */
+/* Funciones auxiliares */
 
+
+/* Determina si un caracter es un espacio, una tabulacion o un retorno de carro y deberian, por lo tanto, ser ignorados.
+ */
+int esEspacio(char c) {
+    return c == ' ' || c == '\t' || c == '\r';
+}
 
 
 /* Elimina los espacios al final de una cadena de caracteres. Toma la cadena y su largo.
  */
 void eliminarEspaciosFinales(char nombre[MAXLARGONOMBRE + 1], int largo) {
-    if(nombre[largo-1] == ' ') {
-        nombre[largo-1] = '\0';
-        eliminarEspaciosFinales(nombre, largo-1);
+    if(esEspacio(nombre[largo - 1])) {
+        nombre[largo - 1] = '\0';
+        eliminarEspaciosFinales(nombre, largo - 1);
     }
 }
 
@@ -32,7 +38,7 @@ int chequearLargo(char nombre[MAXLARGONOMBRE + 1]) {
  */
 char leerNombreConColor(FILE* archivo, char nombre[MAXLARGONOMBRE + 1], int* errorFormato) {
     char color;
-    int asignado = fscanf(archivo, " %[^,\n], %c ", nombre, &color);
+    int asignado = fscanf(archivo, " %[^,\n], %c \n", nombre, &color);
     if(asignado == EOF) {
         // No pudo leer.
         *errorFormato = NOPUDOLEER;
@@ -40,7 +46,7 @@ char leerNombreConColor(FILE* archivo, char nombre[MAXLARGONOMBRE + 1], int* err
     }
     if (asignado != 2) {
         // No pudo leer ambos campos.
-        *errorFormato = CAMPOSINSUFICIENTES;
+        *errorFormato = MALFORMATOCABECERA;
         return '\0';
     }
     if(!colorValido(color)) {
@@ -85,8 +91,23 @@ void leerNombreJugadores(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], ch
 }
 
 
+/* Busca el proximo caracter que no sea un espacio para ver si es un salto de linea. Toma un descriptor de archivo y devuelve 1 si encontro un '\n' y 0 en caso contrario.
+ */
+int haySaltoLinea(FILE* archivo) {
+    char c = ' ';
+    while(esEspacio(c)) {
+        fscanf("%c", &c); // cuidado cuando llega a EOF
+    }
+    if(c == '\n') {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
-/* Funciones de Libreria */
+
+
+/* Funciones de libreria */
 
 
 
@@ -94,7 +115,7 @@ char leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nomb
     leerNombreJugadores(archivo, nombreNegro, nombreBlanco, errorFormato);
     if (*errorFormato != 0) return '\0';
     char color_inicio;
-    int leidos = fscanf(archivo, " %c ", &color_inicio);
+    int leidos = fscanf(archivo, " %c \n", &color_inicio);
     if(leidos == EOF) {
         // No pudo leer.
         *errorFormato = NOPUDOLEER;
@@ -102,7 +123,7 @@ char leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nomb
     }
     if (leidos != 1) {
         // No pudo leer el campo.
-        *errorFormato = CAMPOSINSUFICIENTES;
+        *errorFormato = MALFORMATOCABECERA;
         return '\0';
     }
     if(!colorValido(color_inicio)) {
@@ -112,4 +133,27 @@ char leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nomb
     }
 
     return color_inicio;
+}
+
+
+int lineaVacia(FILE* archivo) {
+    long pos = ftell(archivo);
+    if(haySaltoLinea(archivo)) {
+        return 1;
+    } else {
+        fseek(archivo, pos, SEEK_CUR);  // buscarSaltoLinea avanzo el cursor del archivo.
+        return 0;
+    }
+}
+
+
+int leerLinea(FILE* archivo, char* fila, char* columna) {
+    int escaneado = fscanf(" %c%c", columna, fila);
+    if (escaneado != 2 || *fila == '\n' || *columna == '\n' || !haySaltoLinea(archivo)) {
+        // Todavia no deberia aparecer un salto de linea.
+        return MALFORMATOLINEA;
+    } else {
+        // No hubo problemas en la lectura.
+        return 0;
+    }
 }

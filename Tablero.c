@@ -26,11 +26,6 @@ char sumarColumna(char columna, int mov) {
 }
 
 
-char colorOpuesto(char color) {
-    return color == FICHA_BLANCA ? FICHA_NEGRA : FICHA_BLANCA;
-}
-
-
 
 /* Funciones auxiliares */
 
@@ -168,14 +163,14 @@ int colocarFicha(Tablero tablero, char fila, char columna, char color) {
             }
         }
     }
-    return encontroDireccionValida;
+    return encontroDireccionValida ? 0 : FICHAILEGAL;
 }
 
 
 int tieneJugada(Tablero tablero, char color) {
     int hayPosicionValida = 0;
-    for (char fila = "1"; fila <= "8" && !hayPosicionValida; fila = sumarFila(fila, 1)) {
-        for (char col = "A"; col <= "H" && !hayPosicionValida; col = sumarColumna(col, 1)){
+    for (char fila = '1'; fila <= '8' && !hayPosicionValida; fila = sumarFila(fila, 1)) {
+        for (char col = 'A'; col <= 'H' && !hayPosicionValida; col = sumarColumna(col, 1)){
             if(posicionEsValida(tablero, fila, col, color)) {
                 hayPosicionValida = 1;
             }
@@ -187,8 +182,8 @@ int tieneJugada(Tablero tablero, char color) {
 
 void escribirTablero(FILE* archivo, Tablero tablero) {
     assert(archivo);
-    for (char fila = "1"; fila <= "8"; fila = sumarFila(fila, 1)) {
-        for (char col = "A"; col <= "H"; col = sumarColumna(col, 1)){
+    for (char fila = '1'; fila <= '8'; fila = sumarFila(fila, 1)) {
+        for (char col = 'A'; col <= 'H'; col = sumarColumna(col, 1)){
             fprintf(archivo, "%c", verCasillaTablero(tablero, fila, col));
         }
         fprintf(archivo, "\n");
@@ -203,6 +198,27 @@ void imprimirTablero(Tablero tablero) {
 
 int colorValido(char color) {
     return color == FICHA_BLANCA || color == FICHA_NEGRA;
+}
+
+
+char colorOpuesto(char color) {
+    return color == FICHA_BLANCA ? FICHA_NEGRA : FICHA_BLANCA;
+}
+
+
+char darGanador(Tablero tablero) {
+    char casilla;
+    int negras = 0, blancas = 0;
+    for (char fila = '1'; fila <= '8'; fila = sumarFila(fila, 1)) {
+        for (char col = 'A'; col <= 'H'; col = sumarColumna(col, 1)){
+            casilla = verCasillaTablero(tablero, fila, col);
+            if (casilla == FICHA_BLANCA) 
+                blancas++;
+            else if(casilla == FICHA_NEGRA)
+                negras++;
+        }
+    }
+    return negras > blancas ? FICHA_NEGRA : blancas > negras ? FICHA_BLANCA : CASILLA_VACIA;
 }
 
 

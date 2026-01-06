@@ -10,7 +10,7 @@ COLUMNAS = ["A", "B", "C", "D", "E", "F", "G", "H"]
 
 
 ### Diseño de datos
-Casilla = Tuple[str, str] # Ambos str son siempre de largo 1. El primer componente estara entre "A" y "H". El segundo componente estara entre "1" y "8".
+Casilla = Tuple[int, int] # El primer entero representa la fila y el segundo la columna. Ambos deben estar entre 1 y 8
 ColorFicha = str # Sera siempre FICHA_BLANCA o FICHA_NEGRA
 Tablero = dict[Casilla, ColorFicha]
 JugadasPosibles = set[Casilla]
@@ -59,16 +59,96 @@ JugadasPosibles = set[Casilla]
 # 5) finalizar
 # ###
 
-### Turno del bot 1
-# 0) Si hay jugadas posibles no vistas -> 1 sino -> 4
-# 1) Elegir una jugada de las jugadas posibles
-# 2) Si la jugada es invalida -> 0 sino -> 3
-# 3) Contar cuantas fichas esa jugada capturaria -> 0
-# 4) Si encontro alguna jugada valida -> 4 sino -> 7
-# 5) Jugar la jugada que capturaria la mayor cantidad de fichas
-# 6) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias
-# 7) finalizar
-# ###
+
+
+
+def casillaValida(casilla: Casilla):
+    fila, col = casilla
+    return 1 <= fila and fila <= 8 and 1 <= col and col <= 8
+
+
+def assertColorFicha(ficha: str) -> ColorFicha:
+    assert ficha == FICHA_BLANCA or ficha == FICHA_NEGRA  # Deberia cumplirse siempre si el formato del archivo de entrada es el correcto
+    return ficha
+
+
+def assertNivelBot(nivel: int) -> int:
+    assert nivel == 0 or nivel == 1
+    return nivel
+
+
+def colorOpuesto(ficha: ColorFicha) -> ColorFicha:
+    return FICHA_BLANCA if ficha == FICHA_NEGRA else FICHA_NEGRA
+
+
+def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
+    tablero: Tablero = dict()
+    archivoEntrada = open(direccionEntrada, "r")
+    for fila in range(1, 9):
+        for columna in range(1, 9):
+            casilla = archivoEntrada.read(1)
+            if not casilla == CASILLA_VACIA:
+                tablero[(fila, columna)] = assertColorFicha(casilla)
+        assert archivoEntrada.read(1) == '\n' # Deberia cumplirse siempre si el formato del archivo de entrada es el correcto
+    fichaInicial = assertColorFicha(archivoEntrada.read(1))
+    archivoEntrada.close()
+    return tablero, fichaInicial
+
+
+def printTablero(tablero: Tablero) -> None:
+    for fila in range(1, 9):
+        for columna in range(1, 9):
+            if (fila, columna) not in tablero:
+                print("X", end="")
+            else:
+                print(tablero[(fila, columna)], end="")
+        print("\n", end="")
+
+
+def agregarAdyacentesVacias(tablero: Tablero, adyacentes: set[Casilla], casilla: Casilla) -> None:
+    fila, columna = casilla
+    for movFila in [-1, 0, 1]:
+        for movCol in [-1, 0, 1]:
+            casillaAdyacente = (fila + movFila, columna + movCol)
+            if casillaValida(casillaAdyacente) and casillaAdyacente not in tablero:
+                # Agrega casillas vacias adyacentes a casillas con fichas
+                adyacentes.add(casillaAdyacente)
+
+
+def encontrarCasillasAdyacentes(tablero: Tablero) -> set[Casilla]:
+    adyacentes: set[Casilla] = set()
+    for fila in range(1, 9):
+        for columna in range(1, 9):
+            if (fila, columna) in tablero:
+                agregarAdyacentesVacias(tablero, adyacentes, (fila, columna))
+    return adyacentes
+
+
+def hayFichaTrasDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple[int, int], color: ColorFicha) -> bool:
+    fila, columna = primerCasilla
+    movFila, movCol = direccion
+    if primerCasilla not in tablero:
+        # La ficha puesta no captura en esta direccion
+        return False
+    elif tablero[primerCasilla] == color:
+        # La ficha puesta captura en esta direccion
+        return True
+    else:
+        # Tiene que seguir buscando
+        return hayFichaTrasDireccion(tablero, (fila + movFila, columna + movCol), direccion, color)
+
+
+def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple[int, int], color: ColorFicha, modificarTablero = True) -> int:
+    fila, columna = primerCasilla
+    movFila, movCol = direccion
+    if tablero[primerCasilla] == color:
+        # Termino de capturar
+        return 0
+    else:
+        # Tiene que seguir capturando
+        if modificarTablero:
+            tablero[primerCasilla] = color
+        return capturarDireccion(tablero, (fila + movFila, columna + movCol), direccion, color) + 1
 
 ### Hacer una jugada
 # 1) Si la posicion no esta en el tablero -> 2 sino -> 8
@@ -88,39 +168,159 @@ JugadasPosibles = set[Casilla]
 # 7) Colocar la ficha en el lugar propuesto
 # 8) Finalizar
 # ###
+def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificarTablero = True) -> int:
+    if casilla in tablero:
+        return 0
+    fila, columna = casilla
+    fichasCapturadas = 0
+    for movFila in [-1, 0, 1]:
+        for movCol in [-1, 0, 1]:
+            primerCasillaEnDireccion = (fila + movFila, columna + movCol)
+            hayFichaInicioDireccion = primerCasillaEnDireccion in tablero and tablero[casilla] == colorOpuesto(color) # Siempre sera falso cuando movFila = movCol = 0
+            if hayFichaInicioDireccion and hayFichaTrasDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color):
+                fichasCapturadas += capturarDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color, modificarTablero)
+    if not fichasCapturadas == 0 and modificarTablero:
+        tablero[casilla] = color
+    return fichasCapturadas
 
 
-
-def assertColorFicha(ficha: str) -> ColorFicha:
-    assert ficha == FICHA_BLANCA or ficha == FICHA_NEGRA  # Deberia cumplirse siempre si el formato del archivo de entrada es el correcto
-    return ficha
-
-
-def assertNivelBot(nivel: int) -> int:
-    assert nivel == 0 or nivel == 1
-    return nivel
+def actualizarCasillasAdyacentes(tablero: Tablero, casillasAdyacentes: set[Casilla], jugada: Casilla):
+    casillasAdyacentes.remove(jugada)
+    agregarAdyacentesVacias(tablero, casillasAdyacentes, jugada)
 
 
-
-def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
-    tablero: Tablero = dict()
-    with open(direccionEntrada, "r") as archivoEntrada:
-        for fila in FILAS:
-            for columna in COLUMNAS:
-                casilla = archivoEntrada.read(1)
-                if not casilla == CASILLA_VACIA:
-                    tablero[(fila, columna)] = assertColorFicha(casilla)
-            assert archivoEntrada.read(1) == '\n' # Deberia cumplirse siempre si el formato del archivo de entrada es el correcto
-        fichaInicial = assertColorFicha(archivoEntrada.read(1))
-    return tablero, fichaInicial
+def jugadaEsValida(tablero: Tablero, casilla: Casilla, color: ColorFicha):
+    return not hacerJugada(tablero, casilla, color, modificarTablero=False) == 0
 
 
-def printTablero(tablero[])
+def turnoBot(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, nivel: int) -> bool:
+    assertNivelBot(nivel)
+    if nivel == 0:
+        return turnoBot0(tablero, casillasAdyacentes, colorBot)
+    else:
+        return turnoBot1(tablero, casillasAdyacentes, colorBot)
 
+
+def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFicha) -> bool:
+    enocontroJugadaValida = False
+    for casilla in casillasAdyacentes:
+        enocontroJugadaValida = enocontroJugadaValida or jugadaEsValida(tablero, casilla, color)
+    return enocontroJugadaValida
+
+
+def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugador: ColorFicha) -> bool:
+    if not hayJugada(tablero, casillasAdyacentes, colorJugador):
+        input("No tiene jugada. Presione enter para continuar")
+        return False
+    jugada = pedirJugada(tablero, casillasAdyacentes, colorJugador)
+    actualizarCasillasAdyacentes(tablero, casillasAdyacentes, jugada)
+    return True
+
+
+def columna2indice(columna: str) -> int:
+    try:
+        if 1 <= int(columna) and int(columna) <= 8:
+            return int(columna)
+        else:
+            return -1 
+    except ValueError:
+        return -1
+
+
+def fila2indice(fila: str) -> int:
+    indice = ord(fila) - ord("A") + 1
+    if 1 <= indice and indice <= 8:
+        return indice
+    else:
+        return -1 
+
+
+def pedirJugada(tablero: Tablero, casillasAdyacente: set[Casilla], color: ColorFicha) -> Casilla:
+    jugadaEsValida = False
+    jugada = (0, 0)
+    while not jugadaEsValida:
+        jugadaInput = input("Ingrese la casilla en la que desea poner su proxima ficha: ")
+        if not len(jugadaInput) == 2:
+            print("Ingrese la casilla en el formato [fila][columna]")
+        elif columna2indice(jugadaInput[1]) == -1 or fila2indice(jugadaInput[0]) == -1:
+            print("La fila debe ser uno de los siguientes: \"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"G\" o \"H\"")
+            print("La columna debe ser uno de los siguientes: \"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\" o \"8\"")
+        else:
+            jugada = (fila2indice(jugadaInput[0]), columna2indice(jugadaInput[1]))
+            if jugada in tablero:
+                print("La casilla esta ocupada")
+            elif not (jugada in casillasAdyacente and hacerJugada(tablero, jugada, color)):
+                print("Solo se pueden poner fichas en lugares donde capturen piezas enemigas")
+            else:
+                # La ficha se pudo poner
+                jugadaEsValida = True
+    return jugada
+            
+
+### Turno del bot 0
+# 0) Si hay jugadas posibles no vistas -> 1 sino -> 5
+# 1) Elegir una jugada de las jugadas posibles
+# 2) Si la jugada es invalida -> 0 sino -> 3
+# 3) Hacer la jugada
+# 4) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias
+# 5) finalizar
+# ###
+def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha) -> bool:
+    hizoJugada = False
+    jugada = (0, 0)
+    for casilla in casillasAdyacentes:
+        if not hizoJugada:
+            capturas = hacerJugada(tablero, casilla, colorBot)
+            hizoJugada = not capturas == 0
+            jugada = casilla
+    if hizoJugada:
+        actualizarCasillasAdyacentes(tablero, casillasAdyacentes, jugada)
+    return hizoJugada
+
+### Turno del bot 1
+# 0) Si hay jugadas posibles no vistas -> 1 sino -> 4
+# 1) Elegir una jugada de las jugadas posibles
+# 2) Si la jugada es invalida -> 0 sino -> 3
+# 3) Contar cuantas fichas esa jugada capturaria -> 0
+# 4) Si encontro alguna jugada valida -> 5 sino -> 7
+# 5) Jugar la jugada que capturaria la mayor cantidad de fichas
+# 6) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias
+# 7) finalizar
+# ###
+def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha):
+    maxCapturas = 0
+    mejorJugada = (0, 0)
+    for casilla in casillasAdyacentes:
+        capturas = hacerJugada(tablero, casilla, colorBot, modificarTablero=False)
+        if capturas > maxCapturas:
+            maxCapturas = capturas
+            mejorJugada = casilla
+    if not maxCapturas == 0:
+        hacerJugada(tablero, mejorJugada, colorBot)
+        actualizarCasillasAdyacentes(tablero, casillasAdyacentes, mejorJugada)
+    return not maxCapturas == 0
 
 
 def jugar(direccionEntrada: str, colorJugador: ColorFicha, nivelBot: int) -> None:
+    colorBot = colorOpuesto(colorJugador)
     tablero, colorJugando = leerArchivoEntrada(direccionEntrada)
+    printTablero(tablero)
+    casillasAdyacentes = encontrarCasillasAdyacentes(tablero)
+    pasosSeguidos = 0  # Contador de cuantos jugadores seguidos pasaron (si llega a 2 significa que el juego termino) 
+    while pasosSeguidos < 2:
+        pudoJugar = False
+        if colorJugando == colorBot:
+            pudoJugar = turnoBot(tablero, casillasAdyacentes, colorBot, nivelBot)
+        else:
+            pudoJugar = turnoJugador(tablero, casillasAdyacentes, colorJugador)
+        if not pudoJugar:
+            pasosSeguidos += 1
+        else:
+            pasosSeguidos = 0
+        printTablero(tablero)
+        colorJugando = colorOpuesto(colorJugando)
+    
+
 
 
 

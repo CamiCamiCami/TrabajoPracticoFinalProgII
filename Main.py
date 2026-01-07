@@ -39,6 +39,18 @@ def colorOpuesto(ficha: ColorFicha) -> ColorFicha:
     return FICHA_BLANCA if ficha == FICHA_NEGRA else FICHA_NEGRA
 
 
+def actualizarCasillasAdyacentes(tablero: Tablero, casillasAdyacentes: set[Casilla], jugada: Casilla):
+    casillasAdyacentes.remove(jugada)
+    casillasAdyacentes.union(casillasAdyacentesVacias(tablero, jugada))
+
+
+def jugadaEsValida(tablero: Tablero, casilla: Casilla, color: ColorFicha):
+    return not hacerJugada(tablero, casilla, color, modificarTablero=False) == 0
+
+
+# ###
+#   Lee el archivo de entrada. Toma la direccion en la que se puede encontrar el archivo de entrada y lee el tablero sobre el que se va a jugar 
+# y el color del jugador que empieza. Devuelve una tupla con el tablero resultante y el color del jugador que va a arrancar.
 def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
     tablero: Tablero = dict()
     archivoEntrada = open(direccionEntrada, "r")
@@ -46,6 +58,7 @@ def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
         for columna in range(1, 9):
             casilla = archivoEntrada.read(1)
             if not casilla == CASILLA_VACIA:
+                # Solo las casillas no vacias se agregan al tablero
                 tablero[(fila, columna)] = assertColorFicha(casilla)
         assert archivoEntrada.read(1) == '\n' # Deberia cumplirse siempre si el formato del archivo de entrada es el correcto
     fichaInicial = assertColorFicha(archivoEntrada.read(1))
@@ -53,6 +66,10 @@ def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
     return tablero, fichaInicial
 
 
+CASILLA_VACIA = " "
+
+# ###
+#   Imprime el tablero. Toma un tablero y lo imprime a la consola, añadiendo un borde que facilita la identificacion de las coordenadas de cada casilla.
 def printTablero(tablero: Tablero) -> None:
     print("X|ABCDEFGH")
     print("-----------")
@@ -60,31 +77,41 @@ def printTablero(tablero: Tablero) -> None:
         print(f"{fila}|", end="")
         for columna in range(1, 9):
             if (fila, columna) not in tablero:
-                print(" ", end="")
+                print(CASILLA_VACIA, end="")
             else:
                 print(tablero[(fila, columna)], end="")
         print("\n", end="")
 
 
-def agregarAdyacentesVacias(tablero: Tablero, adyacentes: set[Casilla], casilla: Casilla) -> None:
+# ###
+#   Devuelve un conjunto con las casillas vacias adyacentes (ortogonal y diagonalmente) a la casilla dada. Toma el tablero y una casilla.
+def casillasAdyacentesVacias(tablero: Tablero, casilla: Casilla) -> set[Casilla]:
     fila, columna = casilla
+    adyacentes = set()
     for movFila in [-1, 0, 1]:
         for movCol in [-1, 0, 1]:
             casillaAdyacente = (fila + movFila, columna + movCol)
             if casillaValida(casillaAdyacente) and casillaAdyacente not in tablero:
                 # Agrega casillas vacias adyacentes a casillas con fichas
                 adyacentes.add(casillaAdyacente)
+    return adyacentes
 
 
+# ###
+#   Toma un tablero y devuelve el conjunto de todas las casillas vacias que estan adyacentes a una casilla no vacia. Aunque no todas las casillas de este conjunto
+# son jugadas validas, si se cumple que todas las jugadas validas pertenecen al conjunto. Esto facilita eliminar candidatos de jugadas.
 def encontrarCasillasAdyacentes(tablero: Tablero) -> set[Casilla]:
     adyacentes: set[Casilla] = set()
     for fila in range(1, 9):
         for columna in range(1, 9):
             if (fila, columna) in tablero:
-                agregarAdyacentesVacias(tablero, adyacentes, (fila, columna))
+                adyacentes.union(casillasAdyacentesVacias(tablero, (fila, columna)))
     return adyacentes
 
 
+# ###
+#   Revisa una direccion para ver si eventualmente aparecen una ficha del color buscado. Toma el tablero, la primer casilla que aparece en la direccion buscada, 
+# una direccion hacia la que se dirige y el color de la ficha buscada.
 def hayFichaTrasDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple[int, int], color: ColorFicha) -> bool:
     fila, columna = primerCasilla
     movFila, movCol = direccion
@@ -99,6 +126,10 @@ def hayFichaTrasDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: T
         return hayFichaTrasDireccion(tablero, (fila + movFila, columna + movCol), direccion, color)
 
 
+# ###
+#   Captura las fichas hacia una direccion dada, frenando cuando se encuentra una ficha del color buscado. Toma el tablero, la primer casilla que aparece en la , 
+# direccion buscada una direccion hacia la que se dirige y el color de la ficha buscada. Adicionalmente, el parametro opcional modificarTablero determina si las
+# fichas se capturan (son rempalazadas por fichas del color opuesto) o si solo cuenta las fichas que ese movimiento capturaria.
 def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple[int, int], color: ColorFicha, modificarTablero = True) -> int:
     fila, columna = primerCasilla
     movFila, movCol = direccion
@@ -109,7 +140,7 @@ def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple
         # Tiene que seguir capturando
         if modificarTablero:
             tablero[primerCasilla] = color
-        return capturarDireccion(tablero, (fila + movFila, columna + movCol), direccion, color) + 1
+        return capturarDireccion(tablero, (fila + movFila, columna + movCol), direccion, color, modificarTablero) + 1
 
 
 ### Hacer una jugada
@@ -130,9 +161,14 @@ def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple
 # 7) Colocar la ficha en el lugar propuesto
 # 8) Finalizar
 # ###
+
+# ###
+#   Intenta hacer una jugada. Toma el tablero, la casilla donde se hara la jugada y el color de la ficha a poner. Adicionalmente, el parametro
+# modificarTablero determina si la funcion hace cambios en el tablero o si simplemente determina si la jugada se podria hacer.
 def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificarTablero = True) -> int:
     if casilla in tablero:
         return 0
+    print(tablero)
     fila, columna = casilla
     fichasCapturadas = 0
     for movFila in [-1, 0, 1]:
@@ -140,19 +176,10 @@ def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificar
             primerCasillaEnDireccion = (fila + movFila, columna + movCol)
             hayFichaInicioDireccion = primerCasillaEnDireccion in tablero and tablero[primerCasillaEnDireccion] == colorOpuesto(color) # Siempre sera falso cuando movFila = movCol = 0
             if hayFichaInicioDireccion and hayFichaTrasDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color):
+                # Se puede capturar hacia esta direccion
                 fichasCapturadas += capturarDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color, modificarTablero)
-    if not fichasCapturadas == 0 and modificarTablero:
         tablero[casilla] = color
     return fichasCapturadas
-
-
-def actualizarCasillasAdyacentes(tablero: Tablero, casillasAdyacentes: set[Casilla], jugada: Casilla):
-    casillasAdyacentes.remove(jugada)
-    agregarAdyacentesVacias(tablero, casillasAdyacentes, jugada)
-
-
-def jugadaEsValida(tablero: Tablero, casilla: Casilla, color: ColorFicha):
-    return not hacerJugada(tablero, casilla, color, modificarTablero=False) == 0
 
 
 def turnoBot(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, nivel: int) -> bool:

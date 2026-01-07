@@ -16,50 +16,8 @@ Tablero = dict[Casilla, ColorFicha]
 JugadasPosibles = set[Casilla]
 
 
-### Programa General 
-# 0) Procesar argumentos de entrada
-# 1) Leer archivo de C
-# 1.0) Crear el diccionario
-# 1.1) Leer linea
-# 1.1.1) Si el caracter no es CASILLA_VACIA -> 1.1.2 sino -> 1.1.3
-# 1.1.2) Agregar la Ficha correspondiente en la casilla
-# 1.1.3) Repetir 1.1.1 hasta llegar al final de la linea
-# 1.2) Repetir 1.1 para todas las lineas
-# 1.3) Leer el ultimo caracter para decidir quien empieza
-# 1.4) Imprimir el tablero
-# 2) Jugar
-# 2.0) Si empieza el jugador -> 2.1 sino -> 2.4
-# 2.1) Turno del jugador
-# 2.2) Imprimir el tablero
-# 2.3) Si no termino el juego -> 2.4 sino -> 3
-# 2.4) Turno del bot
-# 2.5) Imprimir el tablero
-# 2.6) Si no termino el juego -> 2.1 sino -> 3
-# 3) Fin del juego
-# ###
-
-### Turno del Jugador
-# 1) Si el jugador tiene jugada posible -> 2 sino -> 5
-# 2) Pedir una jugada
-# 2.1) Si el formato de la jugada es valido -> 2.2 sino -> 3
-# 2.2) Si la jugada es valida -> 2.3 sino -> 4
-# 2.3) Hacer la jugada
-# 2.4) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias -> 5
-# 3) Imprimir mensaje de error de formato -> 2
-# 4) Imprimir formato de jugada invalida -> 2
-# 5) Finalizar
-# ###
-
-### Turno del bot 0
-# 0) Si hay jugadas posibles no vistas -> 1 sino -> 5
-# 1) Elegir una jugada de las jugadas posibles
-# 2) Si la jugada es invalida -> 0 sino -> 3
-# 3) Hacer la jugada
-# 4) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias
-# 5) finalizar
-# ###
-
-
+def casilla2str(casilla: Casilla) -> str:
+    return COLUMNAS[casilla[1] - 1] + FILAS[casilla[0] - 1]
 
 
 def casillaValida(casilla: Casilla):
@@ -96,10 +54,13 @@ def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
 
 
 def printTablero(tablero: Tablero) -> None:
+    print("X|ABCDEFGH")
+    print("-----------")
     for fila in range(1, 9):
+        print(f"{fila}|", end="")
         for columna in range(1, 9):
             if (fila, columna) not in tablero:
-                print("X", end="")
+                print(" ", end="")
             else:
                 print(tablero[(fila, columna)], end="")
         print("\n", end="")
@@ -150,6 +111,7 @@ def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple
             tablero[primerCasilla] = color
         return capturarDireccion(tablero, (fila + movFila, columna + movCol), direccion, color) + 1
 
+
 ### Hacer una jugada
 # 1) Si la posicion no esta en el tablero -> 2 sino -> 8
 # 2) Chequear inicio direcciones
@@ -176,7 +138,7 @@ def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificar
     for movFila in [-1, 0, 1]:
         for movCol in [-1, 0, 1]:
             primerCasillaEnDireccion = (fila + movFila, columna + movCol)
-            hayFichaInicioDireccion = primerCasillaEnDireccion in tablero and tablero[casilla] == colorOpuesto(color) # Siempre sera falso cuando movFila = movCol = 0
+            hayFichaInicioDireccion = primerCasillaEnDireccion in tablero and tablero[primerCasillaEnDireccion] == colorOpuesto(color) # Siempre sera falso cuando movFila = movCol = 0
             if hayFichaInicioDireccion and hayFichaTrasDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color):
                 fichasCapturadas += capturarDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color, modificarTablero)
     if not fichasCapturadas == 0 and modificarTablero:
@@ -208,6 +170,17 @@ def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFi
     return enocontroJugadaValida
 
 
+### Turno del Jugador
+# 1) Si el jugador tiene jugada posible -> 2 sino -> 5
+# 2) Pedir una jugada
+# 2.1) Si el formato de la jugada es valido -> 2.2 sino -> 3
+# 2.2) Si la jugada es valida -> 2.3 sino -> 4
+# 2.3) Hacer la jugada
+# 2.4) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias -> 5
+# 3) Imprimir mensaje de error de formato -> 2
+# 4) Imprimir formato de jugada invalida -> 2
+# 5) Finalizar
+# ###
 def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugador: ColorFicha) -> bool:
     if not hayJugada(tablero, casillasAdyacentes, colorJugador):
         input("No tiene jugada. Presione enter para continuar")
@@ -217,18 +190,18 @@ def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugado
     return True
 
 
-def columna2indice(columna: str) -> int:
+def fila2indice(fila: str) -> int:
     try:
-        if 1 <= int(columna) and int(columna) <= 8:
-            return int(columna)
+        if 1 <= int(fila) and int(fila) <= 8:
+            return int(fila)
         else:
             return -1 
     except ValueError:
         return -1
 
 
-def fila2indice(fila: str) -> int:
-    indice = ord(fila) - ord("A") + 1
+def columna2indice(columna: str) -> int:
+    indice = ord(columna) - ord("A") + 1
     if 1 <= indice and indice <= 8:
         return indice
     else:
@@ -241,12 +214,12 @@ def pedirJugada(tablero: Tablero, casillasAdyacente: set[Casilla], color: ColorF
     while not jugadaEsValida:
         jugadaInput = input("Ingrese la casilla en la que desea poner su proxima ficha: ")
         if not len(jugadaInput) == 2:
-            print("Ingrese la casilla en el formato [fila][columna]")
-        elif columna2indice(jugadaInput[1]) == -1 or fila2indice(jugadaInput[0]) == -1:
+            print("Ingrese la casilla en el formato [columna][fila]")
+        elif columna2indice(jugadaInput[0]) == -1 or fila2indice(jugadaInput[1]) == -1:
             print("La fila debe ser uno de los siguientes: \"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"G\" o \"H\"")
             print("La columna debe ser uno de los siguientes: \"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\" o \"8\"")
         else:
-            jugada = (fila2indice(jugadaInput[0]), columna2indice(jugadaInput[1]))
+            jugada = (fila2indice(jugadaInput[1]), columna2indice(jugadaInput[0]))
             if jugada in tablero:
                 print("La casilla esta ocupada")
             elif not (jugada in casillasAdyacente and hacerJugada(tablero, jugada, color)):
@@ -274,8 +247,12 @@ def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
             hizoJugada = not capturas == 0
             jugada = casilla
     if hizoJugada:
+        print(f"Turno de la maquina: {casilla2str(jugada)}")
         actualizarCasillasAdyacentes(tablero, casillasAdyacentes, jugada)
+    else:
+        print("Turno de la maquina: Paso")
     return hizoJugada
+
 
 ### Turno del bot 1
 # 0) Si hay jugadas posibles no vistas -> 1 sino -> 4
@@ -296,11 +273,53 @@ def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
             maxCapturas = capturas
             mejorJugada = casilla
     if not maxCapturas == 0:
+        print(f"Turno de la maquina: {casilla2str(mejorJugada)}")
         hacerJugada(tablero, mejorJugada, colorBot)
         actualizarCasillasAdyacentes(tablero, casillasAdyacentes, mejorJugada)
+    else:
+        print("Turno de la maquina: Paso")
     return not maxCapturas == 0
 
 
+def determinarGanador(tablero: Tablero) -> str:
+    blanco = 0
+    negro = 0
+    for fila in range(1, 9):
+        for columna in range(1, 9):
+            if (fila, columna) in tablero:
+                if tablero[(fila, columna)] == FICHA_BLANCA:
+                    blanco += 1
+                else:
+                    negro += 1
+    if blanco > negro:
+        return FICHA_BLANCA
+    elif negro > blanco:
+        return FICHA_NEGRA
+    else:
+        return CASILLA_VACIA
+
+
+### Programa General 
+# 0) Procesar argumentos de entrada
+# 1) Leer archivo de C
+# 1.0) Crear el diccionario
+# 1.1) Leer linea
+# 1.1.1) Si el caracter no es CASILLA_VACIA -> 1.1.2 sino -> 1.1.3
+# 1.1.2) Agregar la Ficha correspondiente en la casilla
+# 1.1.3) Repetir 1.1.1 hasta llegar al final de la linea
+# 1.2) Repetir 1.1 para todas las lineas
+# 1.3) Leer el ultimo caracter para decidir quien empieza
+# 1.4) Imprimir el tablero
+# 2) Jugar
+# 2.0) Si empieza el jugador -> 2.1 sino -> 2.4
+# 2.1) Turno del jugador
+# 2.2) Imprimir el tablero
+# 2.3) Si no termino el juego -> 2.4 sino -> 3
+# 2.4) Turno del bot
+# 2.5) Imprimir el tablero
+# 2.6) Si no termino el juego -> 2.1 sino -> 3
+# 3) Fin del juego
+# ###
 def jugar(direccionEntrada: str, colorJugador: ColorFicha, nivelBot: int) -> None:
     colorBot = colorOpuesto(colorJugador)
     tablero, colorJugando = leerArchivoEntrada(direccionEntrada)
@@ -319,9 +338,13 @@ def jugar(direccionEntrada: str, colorJugador: ColorFicha, nivelBot: int) -> Non
             pasosSeguidos = 0
         printTablero(tablero)
         colorJugando = colorOpuesto(colorJugando)
-    
-
-
+    ganador = determinarGanador(tablero)
+    if ganador == colorBot:
+        print("Gano la maquina!")
+    elif ganador == colorJugador:
+        print("Gano el jugador!")
+    else:
+        print("Hubo un empate.")
 
 
 if __name__ == '__main__':

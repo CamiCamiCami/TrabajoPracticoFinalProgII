@@ -30,7 +30,6 @@ int lineaVacia(FILE* archivo);
 
 /* Lee una linea del archivo. Toma un decriptor de archivo y punteros donde poner los valores de fila y columna encontrados.
  *  Asume que el cursor del archivo esta al inicio de una linea. Si pudo leer sin problemas devuelve 0 sino devuelve MALFORMATOLINEA.
- *  
  */
 int leerLinea(FILE* archivo, char* fila, char* columna);
 

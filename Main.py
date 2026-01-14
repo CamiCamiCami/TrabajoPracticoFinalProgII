@@ -160,26 +160,6 @@ def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple
             tablero[primerCasilla] = color
         return capturarDireccion(tablero, (fila + movFila, columna + movCol), direccion, color, modificarTablero) + 1
 
-
-### Hacer una jugada
-# 1) Si la posicion no esta en el tablero -> 2 sino -> 8
-# 2) Chequear inicio direcciones
-# 2.1) Si la primer casilla pertenece al tablero -> 2.2 sino -> 5
-# 2.2) Si la primer ficha es del color opuesto -> 3 sino -> 5
-# 3) Chequear fin direcciones
-# 3.1) Si la casilla pertenece al tablero -> 3.2 sino -> 5
-# 3.2) Si la ficha es del color opuesto -> 3.3 sino -> 4
-# 3.3) Avanzar a la siguiente casilla en la direccion -> 3.1
-# 4) Cambiar fichas de color en la direccion
-# 4.1) Si la ficha es del color opuesto -> 4.2 sino -> 5
-# 4.2) Cambiar el color de la ficha
-# 4.3) Avanzar una posicion -> 4.1
-# 5) Repetir 2 para todas las direcciones
-# 6) Si hay al menos una direccion valida -> 7 sino -> 8
-# 7) Colocar la ficha en el lugar propuesto
-# 8) Finalizar
-# ###
-
 # ###   hacerJugada
 #   Intenta hacer una jugada. Toma el tablero, la casilla donde se hara la jugada y el color de la ficha a poner. Adicionalmente, el parametro
 # modificarTablero determina si la funcion hace cambios en el tablero o si simplemente determina si la jugada se podria hacer.
@@ -222,17 +202,7 @@ def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFi
     return enocontroJugadaValida
 
 
-### Turno del Jugador
-# 1) Si el jugador tiene jugada posible -> 2 sino -> 5
-# 2) Pedir una jugada
-# 2.1) Si el formato de la jugada es valido -> 2.2 sino -> 3
-# 2.2) Si la jugada es valida -> 2.3 sino -> 4
-# 2.3) Hacer la jugada
-# 2.4) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias -> 5
-# 3) Imprimir mensaje de error de formato -> 2
-# 4) Imprimir formato de jugada invalida -> 2
-# 5) Finalizar
-# ###
+
 
 # ###   turnoJugador
 #   Se encarga del turno del jugador. Toma el tablero, un conjunto con las casillas vacias adyacentes a una ficha y el color del jugador. Devuelve verdadero
@@ -264,14 +234,7 @@ def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugado
     return True
             
 
-### Turno del bot 0
-# 0) Si hay jugadas posibles no vistas -> 1 sino -> 5
-# 1) Elegir una jugada de las jugadas posibles
-# 2) Si la jugada es invalida -> 0 sino -> 3
-# 3) Hacer la jugada
-# 4) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias
-# 5) finalizar
-# ###
+
 
 # ### turnoBot0
 #   Elige una jugada aleatoria entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacias adyacentes a una ficha y el color del bot.
@@ -290,18 +253,6 @@ def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
     else:
         print("Turno de la maquina: Paso")
     return hizoJugada
-
-
-### Turno del bot 1
-# 0) Si hay jugadas posibles no vistas -> 1 sino -> 4
-# 1) Elegir una jugada de las jugadas posibles
-# 2) Si la jugada es invalida -> 0 sino -> 3
-# 3) Contar cuantas fichas esa jugada capturaria -> 0
-# 4) Si encontro alguna jugada valida -> 5 sino -> 7
-# 5) Jugar la jugada que capturaria la mayor cantidad de fichas
-# 6) Eliminar la casilla jugada de las jugadas posibles y agregar sus casillas adyacentes vacias
-# 7) finalizar
-# ###
 
 # ### turnoBot1
 #   Elige la jugada que mas capturas logre entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacias adyacentes a una ficha y el color del bot.
@@ -325,7 +276,7 @@ def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
 
 # ### determinarGanador
 #   Determina que color tiene mas fichas en el tablero al final del juego. Toma un tablero terminado y devuelve FICHA_BLANCA en caso de que haya mas fichas blancas, FICHA_NEGRA 
-# si hay mas fichas negras y otra cosa (en este caso CASILLA_VACIA) en caso de empate.
+# si hay mas fichas negras y otra cosa (especificamente CASILLA_VACIA) en caso de empate.
 def determinarGanador(tablero: Tablero) -> str:
     blanco = 0
     negro = 0
@@ -344,27 +295,7 @@ def determinarGanador(tablero: Tablero) -> str:
         return CASILLA_VACIA
 
 
-### Programa General 
-# 0) Procesar argumentos de entrada
-# 1) Leer archivo de C
-# 1.0) Crear el diccionario
-# 1.1) Leer linea
-# 1.1.1) Si el caracter no es CASILLA_VACIA -> 1.1.2 sino -> 1.1.3
-# 1.1.2) Agregar la Ficha correspondiente en la casilla
-# 1.1.3) Repetir 1.1.1 hasta llegar al final de la linea
-# 1.2) Repetir 1.1 para todas las lineas
-# 1.3) Leer el ultimo caracter para decidir quien empieza
-# 1.4) Imprimir el tablero
-# 2) Jugar
-# 2.0) Si empieza el jugador -> 2.1 sino -> 2.4
-# 2.1) Turno del jugador
-# 2.2) Imprimir el tablero
-# 2.3) Si no termino el juego -> 2.4 sino -> 3
-# 2.4) Turno del bot
-# 2.5) Imprimir el tablero
-# 2.6) Si no termino el juego -> 2.1 sino -> 3
-# 3) Fin del juego
-# ###
+
 def jugar(direccionEntrada: str, colorJugador: ColorFicha, nivelBot: int) -> None:
     colorBot = colorOpuesto(colorJugador)
     tablero, colorJugando = leerArchivoEntrada(direccionEntrada)

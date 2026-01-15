@@ -40,11 +40,11 @@ int leerNombreConColor(FILE* archivo, char nombre[MAXLARGONOMBRE + 1], char* col
     int asignado = fscanf(archivo, " %[^,\n], %c \n", nombre, color);
     if(asignado == EOF) {
         // No pudo leer.
-        return NOPUDOLEER;
+        return FINPREMATURO;
     }
     if (asignado != 2) {
         // No pudo leer ambos campos.
-        return MALFORMATOCABECERA;
+        return NOENCONTROINFO;
     }
     if(!colorValido(*color)) {
         // El color asignado al jugador no es un color valido (blanco o negro).
@@ -115,11 +115,11 @@ int leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombr
     int leidos = fscanf(archivo, " %c \n", colorInicial);
     if(leidos == EOF) {
         // No pudo leer.
-        return NOPUDOLEER;
+        return FINPREMATURO;
     }
     if (leidos != 1) {
         // No pudo leer el campo.
-        return MALFORMATOCABECERA;
+        return NOENCONTROINFO;
     }
     if(!colorValido(*colorInicial)) {
         // El color que arranca no es un color valido (blanco o negro).

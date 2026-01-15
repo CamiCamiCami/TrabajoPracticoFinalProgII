@@ -24,8 +24,8 @@
 
 /* Errores de Formato */
 
-#define NOPUDOLEER 3
-#define MALFORMATOCABECERA 4
+#define FINPREMATURO 3
+#define NOENCONTROINFO 4
 #define NOMRELARGO 5
 #define COLORINVALIDO 6
 #define MISMOCOLOR 7

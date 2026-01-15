@@ -25,11 +25,11 @@ void imprimirErrorDeArchivo(char path[]) {
 void imprimirErrorFormato(int ERROR) {
     switch (ERROR)
     {
-    case NOPUDOLEER:
+    case FINPREMATURO:
         printf("El archivo terminó   inesperadamente antes de llegar al fin de la cabecera.\n");
         printf("El formato de la cabecera debe ser:\n\n[Nombre del Jugador1],[Color del Jugador1]\n[Nombre del Jugador2],[Color del Jugador2]\n[Color que empieza el juego]\n");
         break;
-    case MALFORMATOCABECERA:
+    case NOENCONTROINFO:
         printf("El formato de la cabecera debe ser:\n\n[Nombre del Jugador1],[Color del Jugador1]\n[Nombre del Jugador2],[Color del Jugador2]\n[Color que empieza el juego]\n");
         break;
     case NOMRELARGO:
@@ -39,10 +39,10 @@ void imprimirErrorFormato(int ERROR) {
         printf("Unos de los colores en la cabecera es invalido. Los colores deben aparecer como %c (blanco) o %c (negro).\n", FICHA_BLANCA, FICHA_NEGRA);
         break;
     case MISMOCOLOR:
-        printf("Los dos jugadores estaban asignados al mismo color. Por favor asigneles colores distintos\n");
+        printf("Los dos jugadores estaban asignados al mismo color. Por favor asigneles colores distintos.\n");
         break;
     case MISMONOMBRE:
-        printf("Los dos jugadores fueron dados el mismo nombre. Por favor asigneles nombres distintos\n");
+        printf("Los dos jugadores fueron dados el mismo nombre. Por favor asigneles nombres distintos.\n");
         break;
     case MALFORMATOLINEA:
         printf("El formato de cada una de las lineas debe ser:\n\n[columna de la jugada][fila de la jugada]\n");
@@ -79,7 +79,6 @@ int abrirArchivo(char direccion[], const char modo[], FILE** archivo) {
     *archivo = fopen(direccion, modo);
     if (*archivo == NULL) {
         // No pudo abrir correctamente el archivo.
-        imprimirErrorDeArchivo(direccion);
         return NOPUDOABRIR;
     }
     return 0;
@@ -94,11 +93,16 @@ int main(int args, char** argv) {
         return MALUSO;
     }
 
+    // Abre el archivo del que se va a leer
     char *direccionEntrada = argv[1], *direccionSalida = argv[2];
-    FILE* archivoEntrada;
-    errorUso = abrirArchivo(direccionEntrada, "r", &archivoEntrada);
-    if(errorUso) return errorUso;
+    FILE* archivoEntrada = fopen(direccionEntrada, "r");
+    if(archivoEntrada == NULL) {
+        imprimirErrorDeArchivo(direccionEntrada);
+        return NOPUDOABRIR;
+    }
+    
 
+    // Lee las primeras tres lineas del archivo de entrada
     char jugadorN[MAXLARGONOMBRE + 1], jugadorB[MAXLARGONOMBRE + 1];
     char colorJugando;
     errorFormato = leerCabecera(archivoEntrada, jugadorN, jugadorB, &colorJugando);
@@ -109,6 +113,7 @@ int main(int args, char** argv) {
         return errorFormato;
     }
 
+    // Recorre el archivo de entrada 
     Tablero tablero = crearTablero();
     char filajugada, columnajugada;
     int nroLinea = 3; // La cabecera ocupa 3 lineas
@@ -134,6 +139,7 @@ int main(int args, char** argv) {
     fclose(archivoEntrada);
 
     if(errorFormato) {
+        // El archivo de entrada tenia un formato inesperado
         imprimirErrorFormato(errorFormato);
         liberarTablero(tablero);
         return errorFormato;
@@ -162,13 +168,12 @@ int main(int args, char** argv) {
         return 0;
     }
         
-    // El juego quedo a medias
-    FILE* archivoSalida;
-    errorUso = abrirArchivo(direccionSalida, "w", &archivoSalida);
-    if (errorUso) {
-        // No pudo abrir correctamente el archivo.
+    // El juego no termino
+    FILE* archivoSalida = fopen(direccionSalida, "w");
+    if (archivoSalida == NULL) {
+        // No pudo abrir correctamente el archivo de salida.
         liberarTablero(tablero);
-        return errorUso;
+        return NOPUDOABRIR;
     }
     escribirTablero(archivoSalida, tablero);
     fprintf(archivoSalida, "%c\n", colorJugando);

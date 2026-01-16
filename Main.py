@@ -83,9 +83,6 @@ def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
     archivoEntrada.close()
     return tablero, fichaInicial
 
-
-CASILLA_VACIA = " "
-
 # ###   printTablero
 #   Imprime el tablero. Toma un tablero y lo imprime a la consola, añadiendo un borde que facilita la identificacion de las coordenadas de cada casilla.
 def printTablero(tablero: Tablero) -> None:
@@ -123,7 +120,7 @@ def encontrarCasillasAdyacentes(tablero: Tablero) -> set[Casilla]:
     for fila in range(1, 9):
         for columna in range(1, 9):
             if (fila, columna) in tablero:
-                adyacentes.union(casillasAdyacentesVacias(tablero, (fila, columna)))
+                adyacentes.update(casillasAdyacentesVacias(tablero, (fila, columna)))
     return adyacentes
 
 
@@ -166,7 +163,6 @@ def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple
 def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificarTablero = True) -> int:
     if casilla in tablero:
         return 0
-    print(tablero)
     fila, columna = casilla
     fichasCapturadas = 0
     for movFila in [-1, 0, 1]:

@@ -86,7 +86,7 @@ int abrirArchivo(char direccion[], const char modo[], FILE** archivo) {
 
 
 int main(int args, char** argv) {
-    int errorUso = 0, errorFormato = 0, hizoJugadaInvalida = 0; // Variables de error
+    int errorFormato = 0, hizoJugadaInvalida = 0; // Variables de error
     if(args != 3) {
         // Faltan/sobran argumentos.
         imprimirErrorDeUso();
@@ -116,7 +116,7 @@ int main(int args, char** argv) {
     // Recorre el archivo de entrada 
     Tablero tablero = crearTablero();
     char filajugada, columnajugada;
-    int nroLinea = 3; // La cabecera ocupa 3 lineas
+    int nroLinea = 0;
     while(!hizoJugadaInvalida && !errorFormato && !feof(archivoEntrada)) {
         nroLinea++;
         if(lineaVacia(archivoEntrada)) {

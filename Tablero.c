@@ -151,7 +151,9 @@ char verCasillaTablero(Tablero tablero, char fila, char columna) {
 
 
 int colocarFicha(Tablero tablero, char fila, char columna, char color) {
+    DEBUG_PRINT("Poniendo ficha %c en %c%c\n", color, columna, fila);
     if(!(dentroTablero(fila, columna) && verCasillaTablero(tablero, fila, columna) == CASILLA_VACIA && colorValido(color))) {
+        DEBUG_PRINT("No la pudo poner: no cumplia prerequisitos\n");
         return FICHAILEGAL;
     }
     DEBUG_PRINT("Valida de base\n");

@@ -141,7 +141,7 @@ int main(int args, char** argv) {
     chequearTestFormato(resultado, NOENCONTROINFO, 2);
 
     resultado = llamar("%s entradas/entrada23 salidas/salida23 > consolas/consola23", ejecutable); // Uno de los nombres dados excede el limite de 50 caracteres
-    chequearTestFormato(resultado, NOMRELARGO, 3);
+    chequearTestFormato(resultado, NOMBRELARGO, 3);
 
     resultado = llamar("%s entradas/entrada24 salidas/salida24 > consolas/consola24", ejecutable); // Encontro algo distinto de 'B' o 'N' cuando esperaba un color
     chequearTestFormato(resultado, COLORINVALIDO, 4);
@@ -165,7 +165,7 @@ int main(int args, char** argv) {
 
 
     /* Tests de partidas incompletas */
-    resultado = llamar("%s entradas/entrada41 salidas/salida41 > consolas/consola41", ejecutable);
+    resultado = llamar("%s entradas/entrada41 salidas/salida41 > consolas/consola41", ejecutable); // 
     chequearTestPartidaIncompleta(resultado, 1);
 
     resultado = llamar("%s entradas/entrada42 salidas/salida42 > consolas/consola42", ejecutable);

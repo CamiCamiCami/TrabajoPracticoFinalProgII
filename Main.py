@@ -41,7 +41,7 @@ def colorOpuesto(ficha: ColorFicha) -> ColorFicha:
 
 def actualizarCasillasAdyacentes(tablero: Tablero, casillasAdyacentes: set[Casilla], jugada: Casilla):
     casillasAdyacentes.remove(jugada)
-    casillasAdyacentes.union(casillasAdyacentesVacias(tablero, jugada))
+    casillasAdyacentes.update(casillasAdyacentesVacias(tablero, jugada))
 
 
 def jugadaEsValida(tablero: Tablero, casilla: Casilla, color: ColorFicha):
@@ -82,6 +82,7 @@ def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
     fichaInicial = assertColorFicha(archivoEntrada.read(1))
     archivoEntrada.close()
     return tablero, fichaInicial
+
 
 # ###   printTablero
 #   Imprime el tablero. Toma un tablero y lo imprime a la consola, añadiendo un borde que facilita la identificacion de las coordenadas de cada casilla.
@@ -157,6 +158,7 @@ def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple
             tablero[primerCasilla] = color
         return capturarDireccion(tablero, (fila + movFila, columna + movCol), direccion, color, modificarTablero) + 1
 
+
 # ###   hacerJugada
 #   Intenta hacer una jugada. Toma el tablero, la casilla donde se hara la jugada y el color de la ficha a poner. Adicionalmente, el parametro
 # modificarTablero determina si la funcion hace cambios en el tablero o si simplemente determina si la jugada se podria hacer.
@@ -172,7 +174,9 @@ def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificar
             if hayFichaInicioDireccion and hayFichaTrasDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color):
                 # Se puede capturar hacia esta direccion
                 fichasCapturadas += capturarDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color, modificarTablero)
+    if fichasCapturadas > 0 and modificarTablero:
         tablero[casilla] = color
+        fichasCapturadas += 1
     return fichasCapturadas
 
 
@@ -195,9 +199,8 @@ def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFi
     enocontroJugadaValida = False
     for casilla in casillasAdyacentes:
         enocontroJugadaValida = enocontroJugadaValida or jugadaEsValida(tablero, casilla, color)
+        if jugadaEsValida(tablero, casilla, color): print(casilla2str(casilla))
     return enocontroJugadaValida
-
-
 
 
 # ###   turnoJugador
@@ -206,6 +209,7 @@ def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFi
 def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugador: ColorFicha) -> bool:
     if not hayJugada(tablero, casillasAdyacentes, colorJugador):
         input("No tiene jugada. Presione enter para continuar")
+        JUGADAS.append("")
         return False
 
     jugadaEsValida = False
@@ -226,11 +230,10 @@ def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugado
             else:
                 # La ficha se pudo poner
                 jugadaEsValida = True
+    JUGADAS.append(casilla2str(jugada))
     actualizarCasillasAdyacentes(tablero, casillasAdyacentes, jugada)
     return True
-            
-
-
+     
 
 # ### turnoBot0
 #   Elige una jugada aleatoria entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacias adyacentes a una ficha y el color del bot.
@@ -245,9 +248,11 @@ def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
             jugada = casilla
     if hizoJugada:
         print(f"Turno de la maquina: {casilla2str(jugada)}")
+        JUGADAS.append(casilla2str(jugada))
         actualizarCasillasAdyacentes(tablero, casillasAdyacentes, jugada)
     else:
         print("Turno de la maquina: Paso")
+        JUGADAS.append("")
     return hizoJugada
 
 # ### turnoBot1
@@ -264,9 +269,11 @@ def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
     if not maxCapturas == 0:
         print(f"Turno de la maquina: {casilla2str(mejorJugada)}")
         hacerJugada(tablero, mejorJugada, colorBot)
+        JUGADAS.append(casilla2str(mejorJugada))
         actualizarCasillasAdyacentes(tablero, casillasAdyacentes, mejorJugada)
     else:
         print("Turno de la maquina: Paso")
+        JUGADAS.append("")
     return not maxCapturas == 0
 
 
@@ -291,6 +298,11 @@ def determinarGanador(tablero: Tablero) -> str:
         return CASILLA_VACIA
 
 
+JUGADAS: list[str] = []
+def printJUGADAS():
+    for jugada in JUGADAS:
+        print(jugada)
+
 
 def jugar(direccionEntrada: str, colorJugador: ColorFicha, nivelBot: int) -> None:
     colorBot = colorOpuesto(colorJugador)
@@ -308,9 +320,11 @@ def jugar(direccionEntrada: str, colorJugador: ColorFicha, nivelBot: int) -> Non
             pasosSeguidos += 1
         else:
             pasosSeguidos = 0
-        printTablero(tablero)
+            printTablero(tablero)
         colorJugando = colorOpuesto(colorJugando)
+
     ganador = determinarGanador(tablero)
+    printJUGADAS()
     if ganador == colorBot:
         print("Gano la maquina!")
     elif ganador == colorJugador:

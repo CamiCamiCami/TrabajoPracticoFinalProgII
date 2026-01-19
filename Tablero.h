@@ -8,7 +8,24 @@
 #include "Constantes.h"
 
 
+/* Tablero */
+/* Representa un tablero de Othello.
+ * En todas las posicion del Tablero solo se pueden guardar los siguientes valores por diseño:
+ *  FICHA_NEGRA FICHA_BLANCA CASILLA_VACIA (Ver Constantes.h)
+ */
 typedef char** Tablero;
+
+
+/* Casilla */
+/* Representa una posicion del tablero.
+ * El campo fila y columna deben tener uno de los siguientes valores para que la casilla sea valida (esté dentro del tablero)
+ *  Fila: 1 2 3 4 5 6 7 8
+ *  Columna: A B C D E F G H
+ */
+typedef struct __casilla {
+    char fila;
+    char columna;
+} Casilla;
 
 
 /* Crea e iniciaiza un tablero de Othello 8x8. 
@@ -25,21 +42,21 @@ typedef char** Tablero;
 Tablero crearTablero();
 
 
-/* Devuelve si una posicion esta dentro del tablero. Toma un char representando la fila y otro la columna. 
+/* Devuelve si una casilla esta dentro del tablero. Toma una casilla. 
  */
-int dentroTablero(char fila, char columna);
+int dentroTablero(Casilla casilla);
 
 
-/* Devuelve el contenido del tablero en una posicion. Toma un tablero, un char representando la fila y otro la columna. 
- *  Siempre devolvera CASILLA_VACIA, FICHA_NEGRA o FICHA_BLANCA. Si se ingresa una posicion fuera del tablero devolvera CASILLA_VACIA. 
+/* Devuelve el contenido del tablero en una posicion. Toma un tablero y una Casilla. 
+ *  Siempre devolvera CASILLA_VACIA, FICHA_NEGRA o FICHA_BLANCA. La casilla debe estar dentro del tablero
  */
-char verCasillaTablero(Tablero tablero, char fila, char columna);
+char verCasillaTablero(Tablero tablero, Casilla casilla);
 
 
-/* Coloca una ficha en el tablero. Toma un tablero, un char representando la fila y la columna y otro para el color de ficha. 
+/* Coloca una ficha en el tablero. Toma un tablero, una casilla y un char representando el color de la ficha. 
  *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolvera 0 si pudo colocar la ficha y FICHAILEGAL en caso contrario. 
  */
-int colocarFicha(Tablero tablero, char fila, char columna, char color);
+int colocarFicha(Tablero tablero, Casilla casilla, char color);
 
 
 /* Decide si un jugador tiene jugada legal. Toma un tablero y un char representando el color de ficha.
@@ -94,6 +111,27 @@ char darGanador(Tablero Tablero);
 /* Libera la memoria asignada al Tablero
  */
 void liberarTablero(Tablero tablero);
+
+
+/* Crea una casilla. Toma la fila y la columna que la componen.
+ */
+Casilla crearCasilla(char fila, char columna);
+
+
+/* Devuelve la casilla resultante de sumarles cantidades dadas a la columna y fila de una casilla base. Toma la casilla de referencia,
+ *  la cantidad de filas y la cantidad de columnas que se debe mover (pueden tomar valores negativos).
+ */
+Casilla sumarCasilla(Casilla base, int movFila, int movColumna);
+
+
+/* Devuelve la casilla a la derecha de una casilla dada.
+ */
+Casilla siguienteColumna(Casilla base);
+
+
+/* Devuelve la casilla de abajo a una casilla dada.
+ */
+Casilla siguieteFila(Casilla base);
 
 
 #endif

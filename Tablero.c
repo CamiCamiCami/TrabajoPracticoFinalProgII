@@ -16,57 +16,32 @@ int columna2int(char columna) {
 }
 
 
-char sumarFila(char fila, int mov) {
-    return (char)((int)fila + mov);
-}
-
-
-char sumarColumna(char columna, int mov) {
-    return (char)((int)columna + mov);
-}
-
-
-
 /* Funciones auxiliares */
-
-
-
-/* Cambia un valor de una casilla del tablero. Toma el tablero, la posicion y el nuevo contenido de la casilla.
- * El nuevo contenido debera ser FICHA_BLANCA, FICHA_NEGRA o CASILLA_VACIA.
- */
-void setCasillaTablero(Tablero tablero, char fila, char columna, char contenido) {
-    assert(dentroTablero(fila, columna));
-    assert(contenido == FICHA_BLANCA || contenido == FICHA_NEGRA || contenido == CASILLA_VACIA);
-    tablero[columna2int(columna)][fila2int(fila)] = contenido;
-}
 
 
 /* Revisa que la casilla adyacente hacia un direccion sea del color opuesto. Toma el tablero, el color de la ficha a insertar, 
  *      la posicion de insercion y la direccion a chequear.
  */
-int chequeaPrimeraCasillaDireccion(Tablero tablero, char colorInsertado, char filaInsertado, char columnaInsertado, int mov_fila, int mov_columna) {
-    char fila = sumarFila(filaInsertado, mov_fila);
-    char columna = sumarColumna(columnaInsertado, mov_columna);
-    return dentroTablero(fila, columna) && verCasillaTablero(tablero, fila, columna) == colorOpuesto(colorInsertado); // Funciona siempre por cortocircuito
+int chequeaPrimeraCasillaDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertado, int mov_fila, int mov_columna) {
+    Casilla casilla = sumarCasilla(casillaInsertado, mov_fila, mov_columna);
+    return dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == colorOpuesto(colorInsertado); // Funciona siempre por cortocircuito
 }
 
 
 /* Revisa una direccion para ver si al otro lado de las fichas de color opuesto hay un ficha del mismo color. Toma el tablero,
  *      el color de la ficha a insertar, la posicion de insercion y la direccion a chequear.
  */
-int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, char filaInsertado, char columnaInsertado, int mov_fila, int mov_columna) {
+int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertado, int mov_fila, int mov_columna) {
     // Avanza hasta la segunda casilla en la direccion, porque la primera ya fue chequeada.
-    char fila = sumarFila(filaInsertado, 2*mov_fila);
-    char columna = sumarColumna(columnaInsertado, 2*mov_columna);
+    Casilla casilla = sumarCasilla(casillaInsertado, mov_fila*2, mov_columna*2);
     int direccionValida = 0; // si es valida = 1, si es invalida = -1, si todavia no se sabe = 0
     while (!direccionValida) {
-        if (dentroTablero(fila, columna) && verCasillaTablero(tablero, fila, columna) != CASILLA_VACIA) {
-            if(verCasillaTablero(tablero, fila, columna) == colorInsertado) {
+        if (dentroTablero(casilla) && verCasillaTablero(tablero, casilla) != CASILLA_VACIA) {
+            if(verCasillaTablero(tablero, casilla) == colorInsertado) {
                 direccionValida = 1;
             } else {
                 // Avanza a la siguiente casilla
-                fila = sumarFila(fila, mov_fila);
-                columna = sumarColumna(columna, mov_columna);
+                casilla = sumarCasilla(casilla, mov_fila, mov_columna);
             }
         } else {
             direccionValida = -1;
@@ -79,22 +54,20 @@ int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, char fil
 /* Determina si la ficha insertada puede capturar hacia una direccion. Toma el tablero, el color de la ficha a insertar,
  *      la posicion de insercion y la direccion a chequear.
  */
-int direccionValida(Tablero tablero, char colorInsertado, char filaInsertado, char columnaInsertado, int mov_fila, int mov_columna) {
-    return chequeaPrimeraCasillaDireccion(tablero, colorInsertado, filaInsertado, columnaInsertado, mov_fila, mov_columna)
-        && chequeaUltimaCasillaDireccion(tablero, colorInsertado, filaInsertado, columnaInsertado, mov_fila, mov_columna);
+int direccionValida(Tablero tablero, char colorInsertado, Casilla casillaInsertada, int mov_fila, int mov_columna) {
+    return chequeaPrimeraCasillaDireccion(tablero, colorInsertado, casillaInsertada, mov_fila, mov_columna)
+        && chequeaUltimaCasillaDireccion(tablero, colorInsertado, casillaInsertada, mov_fila, mov_columna);
 }
 
 
 /* Captura todas las fichas posibles hacia una direccion. Toma el tablero, el color de la ficha a insertar,
  *      la posicion de insercion y la direccion a capturar.
  */
-void marcarDireccion(Tablero tablero, char colorInsertado, char filaInsertado, char columnaInsertado, int mov_fila, int mov_columna) {
-    char fila = sumarFila(filaInsertado, mov_fila);
-    char columna = sumarColumna(columnaInsertado, mov_columna);
-    while(verCasillaTablero(tablero, fila, columna) == colorOpuesto(colorInsertado)) {
-        setCasillaTablero(tablero, fila, columna, colorInsertado);
-        fila = sumarFila(fila, mov_fila);
-        columna = sumarColumna(columna, mov_columna);
+void marcarDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertada, int mov_fila, int mov_columna) {
+    Casilla casillaMarcando = sumarCasilla(casillaInsertada, mov_fila, mov_columna);
+    while(verCasillaTablero(tablero, casillaMarcando) == colorOpuesto(colorInsertado)) {
+        tablero[columna2int(casillaInsertada.columna)][fila2int(casillaInsertada.fila)] = colorInsertado;
+        casillaMarcando = sumarCasilla(casillaMarcando, mov_fila, mov_columna);
     }
 }
 
@@ -102,14 +75,14 @@ void marcarDireccion(Tablero tablero, char colorInsertado, char filaInsertado, c
 /* Revisa todas las direcciones en una posicion para determinar si es valido insertar una ficha alli.
  *      Toma el tablero, el color de la ficha a insertar y la posicion de insercion.
  */
-int posicionEsValida(Tablero tablero, char fila, char columna, char color) {
-    if(!(dentroTablero(fila, columna) && verCasillaTablero(tablero, fila, columna) == CASILLA_VACIA && colorValido(color))) {
+int posicionEsValida(Tablero tablero, Casilla casilla, char color) {
+    if(!(dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == CASILLA_VACIA && colorValido(color))) {
         return 0;
     }
     int encontroDireccionValida = 0;
     for (int mov_fila = -1; mov_fila <= 1 && !encontroDireccionValida; mov_fila++) {
         for (int mov_col = -1; mov_col <= 1 && !encontroDireccionValida; mov_col++) {
-            if((mov_col != 0 || mov_fila != 0) && direccionValida(tablero, color, fila, columna, mov_fila, mov_col)) {
+            if((mov_col != 0 || mov_fila != 0) && direccionValida(tablero, color, casilla, mov_fila, mov_col)) {
                 encontroDireccionValida = 1;
             }
         }
@@ -139,20 +112,20 @@ Tablero crearTablero() {
 }
 
 
-int dentroTablero(char fila, char columna) {
-    return 0 <= columna2int(columna) && columna2int(columna) < 8 && 0 <= fila2int(fila) && fila2int(fila) < 8;
+int dentroTablero(Casilla casilla) {
+    return 0 <= columna2int(casilla.columna) && columna2int(casilla.columna) < 8 && 0 <= fila2int(casilla.fila) && fila2int(casilla.fila) < 8;
 }
 
 
-char verCasillaTablero(Tablero tablero, char fila, char columna) {
-    assert(dentroTablero(fila, columna));
-    return tablero[columna2int(columna)][fila2int(fila)];
+char verCasillaTablero(Tablero tablero, Casilla casilla) {
+    assert(dentroTablero(casilla));
+    return tablero[columna2int(casilla.columna)][fila2int(casilla.fila)];
 }
 
 
-int colocarFicha(Tablero tablero, char fila, char columna, char color) {
-    DEBUG_PRINT("Poniendo ficha %c en %c%c\n", color, columna, fila);
-    if(!(dentroTablero(fila, columna) && verCasillaTablero(tablero, fila, columna) == CASILLA_VACIA && colorValido(color))) {
+int colocarFicha(Tablero tablero, Casilla casilla, char color) {
+    DEBUG_PRINT("Poniendo ficha %c en %c%c\n", color, casilla.columna, casilla.fila);
+    if(!(dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == CASILLA_VACIA && colorValido(color))) {
         DEBUG_PRINT("No la pudo poner: no cumplia prerequisitos\n");
         return FICHAILEGAL;
     }
@@ -161,17 +134,17 @@ int colocarFicha(Tablero tablero, char fila, char columna, char color) {
     for (int mov_fila = -1; mov_fila <= 1; mov_fila++) {
         for (int mov_col = -1; mov_col <= 1; mov_col++) {
             DEBUG_PRINT("analizando %i %i: ", mov_fila, mov_col);
-            if((mov_col != 0 || mov_fila != 0) && direccionValida(tablero, color, fila, columna, mov_fila, mov_col)) {
+            if((mov_col != 0 || mov_fila != 0) && direccionValida(tablero, color, casilla, mov_fila, mov_col)) {
                 DEBUG_PRINT("VALIDO\n");
                 encontroDireccionValida = 1;
-                marcarDireccion(tablero, color, fila, columna, mov_fila, mov_col);
+                marcarDireccion(tablero, color, casilla, mov_fila, mov_col);
             } else {
                 DEBUG_PRINT("INVALIDO\n");
             }
         }
     }
     if (encontroDireccionValida) {
-        setCasillaTablero(tablero, fila, columna, color);
+        tablero[columna2int(casilla.columna)][fila2int(casilla.fila)] = color;
     }
     return encontroDireccionValida ? 0 : FICHAILEGAL;
 }
@@ -179,9 +152,9 @@ int colocarFicha(Tablero tablero, char fila, char columna, char color) {
 
 int tieneJugada(Tablero tablero, char color) {
     int hayPosicionValida = 0;
-    for (char fila = '1'; fila <= '8' && !hayPosicionValida; fila = sumarFila(fila, 1)) {
-        for (char col = 'A'; col <= 'H' && !hayPosicionValida; col = sumarColumna(col, 1)){
-            if(posicionEsValida(tablero, fila, col, color)) {
+    for (Casilla casilla = crearCasilla("1", "A"); casilla.fila <= '8' && !hayPosicionValida; casilla = siguieteFila(casilla)) {
+        for (casilla.columna = "A"; casilla.columna <= 'H' && !hayPosicionValida; casilla = siguienteColumna(casilla)){
+            if(posicionEsValida(tablero, casilla, color)) {
                 hayPosicionValida = 1;
             }
         }
@@ -192,9 +165,9 @@ int tieneJugada(Tablero tablero, char color) {
 
 void escribirTablero(FILE* archivo, Tablero tablero) {
     assert(archivo);
-    for (char fila = '1'; fila <= '8'; fila = sumarFila(fila, 1)) {
-        for (char col = 'A'; col <= 'H'; col = sumarColumna(col, 1)){
-            fprintf(archivo, "%c", verCasillaTablero(tablero, fila, col));
+    for (Casilla casilla = crearCasilla("1", "A"); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
+        for (casilla.columna = "A"; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
+            fprintf(archivo, "%c", verCasillaTablero(tablero, casilla));
         }
         fprintf(archivo, "\n");
     }
@@ -217,14 +190,15 @@ char colorOpuesto(char color) {
 
 
 char darGanador(Tablero tablero) {
-    char casilla;
+    char color;
     int negras = 0, blancas = 0;
-    for (char fila = '1'; fila <= '8'; fila = sumarFila(fila, 1)) {
-        for (char col = 'A'; col <= 'H'; col = sumarColumna(col, 1)){
-            casilla = verCasillaTablero(tablero, fila, col);
-            if (casilla == FICHA_BLANCA) 
+    
+    for (Casilla casilla = crearCasilla("1", "A"); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
+        for (casilla.columna = "A"; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
+            color = verCasillaTablero(tablero, casilla);
+            if (color == FICHA_BLANCA) 
                 blancas++;
-            else if(casilla == FICHA_NEGRA)
+            else if(color == FICHA_NEGRA)
                 negras++;
         }
     }
@@ -239,3 +213,28 @@ void liberarTablero(Tablero tablero) {
     free(tablero);
 }
 
+
+Casilla crearCasilla(char fila, char columna) {
+    Casilla nueva;
+    nueva.fila = fila;
+    nueva.columna = columna;
+    return nueva;
+}
+
+
+Casilla sumarCasilla(Casilla base, int movFila, int movColumna) {
+    Casilla nueva;
+    nueva.columna = (char)((int)base.columna + movColumna);
+    nueva.fila = (char)((int)base.fila + movFila);
+    return nueva;
+}
+
+
+Casilla siguienteColumna(Casilla base) {
+    return sumarCasilla(base, 0, 1);
+}
+
+
+Casilla siguieteFila(Casilla base) {
+    return sumarCasilla(base, 1, 0);
+}

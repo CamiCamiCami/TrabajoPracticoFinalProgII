@@ -28,10 +28,10 @@ int leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombr
 int lineaVacia(FILE* archivo);
 
 
-/* Lee una linea del archivo. Toma un decriptor de archivo y punteros donde poner los valores de fila y columna encontrados.
- *  Asume que el cursor del archivo esta al inicio de una linea. Si pudo leer sin problemas devuelve 0 sino devuelve MALFORMATOLINEA.
+/* Lee una linea del archivo. Toma un decriptor de archivo y un puntero a una casilla. Asume que el cursor del archivo esta al inicio de una linea.
+ *  Si pudo leer sin problemas devuelve 0 y llena la casilla de la que recibio un puntero con la informacion leida. Si encontro un problema devuelve MALFORMATOLINEA.
  */
-int leerLinea(FILE* archivo, char* fila, char* columna);
+int leerLinea(FILE* archivo, Casilla* casilla);
 
 
 #endif

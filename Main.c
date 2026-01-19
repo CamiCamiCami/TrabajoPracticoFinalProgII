@@ -32,7 +32,7 @@ void imprimirErrorFormato(int ERROR) {
     case NOENCONTROINFO:
         printf("El formato de la cabecera debe ser:\n\n[Nombre del Jugador1],[Color del Jugador1]\n[Nombre del Jugador2],[Color del Jugador2]\n[Color que empieza el juego]\n");
         break;
-    case NOMRELARGO:
+    case NOMBRELARGO:
         printf("El nombre de uno de los jugadores es demasiado largo. El largo maximo para un nombre es de %i caracteres (contando espacios).\n", MAXLARGONOMBRE);
         break;
     case COLORINVALIDO:
@@ -72,19 +72,6 @@ void imprimirJugadaInvalida(int error, int nroJugada, char jugador[]) {
 }
 
 
-/* Abre un archivo en el modo pedido. Toma una dirección, un modo y un puntero a la varaible donde se guardara
- *  el descriptor de archivo. Devuelve 0 si el archivo se abrió exitosamente y NOPUDOABRIR en caso contrario.
- */
-int abrirArchivo(char direccion[], const char modo[], FILE** archivo) {
-    *archivo = fopen(direccion, modo);
-    if (*archivo == NULL) {
-        // No pudo abrir correctamente el archivo.
-        return NOPUDOABRIR;
-    }
-    return 0;
-}
-
-
 int main(int args, char** argv) {
     int errorFormato = 0, hizoJugadaInvalida = 0; // Variables de error
     if(args != 3) {
@@ -115,7 +102,7 @@ int main(int args, char** argv) {
 
     // Recorre el archivo de entrada 
     Tablero tablero = crearTablero();
-    char filajugada, columnajugada;
+    Casilla casillaJugada;
     int nroLinea = 0;
     while(!hizoJugadaInvalida && !errorFormato && !feof(archivoEntrada)) {
         nroLinea++;
@@ -127,9 +114,9 @@ int main(int args, char** argv) {
                 colorJugando = colorOpuesto(colorJugando);
             }
         } else {
-            errorFormato = leerLinea(archivoEntrada, &filajugada, &columnajugada);
+            errorFormato = leerLinea(archivoEntrada, &casillaJugada);
             if(!errorFormato) {
-                hizoJugadaInvalida = colocarFicha(tablero, filajugada, columnajugada, colorJugando);
+                hizoJugadaInvalida = colocarFicha(tablero, casillaJugada, colorJugando);
                 if(!hizoJugadaInvalida) {
                     colorJugando = colorOpuesto(colorJugando);
                 }

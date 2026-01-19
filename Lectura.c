@@ -52,7 +52,7 @@ int leerNombreConColor(FILE* archivo, char nombre[MAXLARGONOMBRE + 1], char* col
     }
     if (!chequearLargo(nombre)) {
         // El nombre es demasiado largo.
-        return NOMRELARGO;
+        return NOMBRELARGO;
     }
     eliminarEspaciosFinales(nombre, strlen(nombre));
     return 0;
@@ -135,19 +135,19 @@ int lineaVacia(FILE* archivo) {
     if(esFinalDeLinea(archivo)) {
         return 1;
     } else {
-        fseek(archivo, pos, SEEK_SET);  // buscarSaltoLinea avanzo el cursor del archivo.
+        fseek(archivo, pos, SEEK_SET);  // esFinalDeLinea avanzo el cursor del archivo.
         return 0;
     }
 }
 
 
-int leerLinea(FILE* archivo, char* fila, char* columna) {
-    int escaneado = fscanf(archivo, " %c%c", columna, fila);
-    if (escaneado == 2 && *fila != '\n' && *columna != '\n' && esFinalDeLinea(archivo)) {
+int leerLinea(FILE* archivo, Casilla* casilla) {
+    int escaneado = fscanf(archivo, " %c%c", &casilla->columna, &casilla->fila);
+    if (escaneado == 2 && casilla->fila != '\n' && casilla->columna != '\n' && esFinalDeLinea(archivo)) {
         // No hubo problemas en la lectura.
         return 0;
     } else {
-        // Todavia no deberia aparecer un salto de linea.
+        // No pudo leer la linea porque tenia un formato incorrecto.
         return MALFORMATOLINEA;
     }
 }

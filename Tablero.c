@@ -5,7 +5,6 @@
 /* Funciones de conveniencia */
 
 
-
 int fila2int(char fila) {
     return (int)fila - (int)'1';
 }
@@ -13,6 +12,12 @@ int fila2int(char fila) {
 
 int columna2int(char columna) {
     return (int)columna - (int)'A';
+}
+
+
+void llenarCasilla(Tablero tablero, Casilla casilla, char color) {
+    assert(dentroTablero(casilla));
+    tablero[columna2int(casilla.columna)][fila2int(casilla.fila)] = color;
 }
 
 
@@ -64,36 +69,58 @@ int direccionValida(Tablero tablero, char colorInsertado, Casilla casillaInserta
  *      la posicion de insercion y la direccion a capturar.
  */
 void marcarDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertada, int mov_fila, int mov_columna) {
+    DEBUG_PRINT("Marcando %i|%i\n", mov_fila, mov_columna);
     Casilla casillaMarcando = sumarCasilla(casillaInsertada, mov_fila, mov_columna);
     while(verCasillaTablero(tablero, casillaMarcando) == colorOpuesto(colorInsertado)) {
-        tablero[columna2int(casillaInsertada.columna)][fila2int(casillaInsertada.fila)] = colorInsertado;
+        llenarCasilla(tablero, casillaMarcando, colorInsertado);
         casillaMarcando = sumarCasilla(casillaMarcando, mov_fila, mov_columna);
     }
 }
+
+
+/* Coloca una ficha en el tablero. Toma un tablero, una casilla, un char representando el color de la ficha y un entero indicando si la funcion esta en modo chequear.
+ *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolvera 0 si pudo colocar la ficha y FICHAILEGAL en caso contrario. 
+ *  Cuando la funcion esta en modo chequear no va a cambiar el tablero en lo absoluto, solo devuelve si es posible o no poner la ficha en esa posicion.
+ */
+int colocarFichaInterno(Tablero tablero, Casilla casilla, char color, int modoChequear) {
+    DEBUG_PRINT("Poniendo ficha %c en %c%c\n", color, casilla.columna, casilla.fila);
+    if(!(dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == CASILLA_VACIA && colorValido(color))) {
+        DEBUG_PRINT("No la pudo poner: no cumplia prerequisitos\n");
+        return FICHAILEGAL;
+    }
+    DEBUG_PRINT("Valida de base\n");
+    int encontroDireccionValida = 0;
+    for (int mov_fila = -1; mov_fila <= 1 && (!modoChequear || !encontroDireccionValida); mov_fila++) { // Ver la NOTA abajo sobre la condición (!modoChequear || !encontroDireccionValida)
+        for (int mov_col = -1; mov_col <= 1  && (!modoChequear || !encontroDireccionValida); mov_col++) {
+            DEBUG_PRINT("analizando %i %i: ", mov_fila, mov_col);
+            if((mov_col != 0 || mov_fila != 0) && direccionValida(tablero, color, casilla, mov_fila, mov_col)) {
+                DEBUG_PRINT("VALIDO\n");
+                encontroDireccionValida = 1;
+                if(!modoChequear) marcarDireccion(tablero, color, casilla, mov_fila, mov_col);
+            } else {
+                DEBUG_PRINT("INVALIDO\n");
+            }
+        }
+    }
+    if (encontroDireccionValida && !modoChequear) {
+        llenarCasilla(tablero, casilla, color);
+    }
+    return encontroDireccionValida ? 0 : FICHAILEGAL;
+}
+/* NOTA: Si está en modo chequear apenas encuentra una dirección válida puede terminar el bucle. Es decir, para que siga el bucle si está en modo chequear
+ *  no debe haber encontrado una dirección válida. La condición queda modoChequear → ¬encontroDireccion, lo que es equivalente a ¬modoChequear ∨ ¬encontroDireccion.
+ */
 
 
 /* Revisa todas las direcciones en una posicion para determinar si es valido insertar una ficha alli.
  *      Toma el tablero, el color de la ficha a insertar y la posicion de insercion.
  */
 int posicionEsValida(Tablero tablero, Casilla casilla, char color) {
-    if(!(dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == CASILLA_VACIA && colorValido(color))) {
-        return 0;
-    }
-    int encontroDireccionValida = 0;
-    for (int mov_fila = -1; mov_fila <= 1 && !encontroDireccionValida; mov_fila++) {
-        for (int mov_col = -1; mov_col <= 1 && !encontroDireccionValida; mov_col++) {
-            if((mov_col != 0 || mov_fila != 0) && direccionValida(tablero, color, casilla, mov_fila, mov_col)) {
-                encontroDireccionValida = 1;
-            }
-        }
-    }
-    return encontroDireccionValida;
+    return colocarFichaInterno(tablero, casilla, color, 1) == 0;
 }
 
 
-
 /* Funciones de libreria */
-
 
 
 Tablero crearTablero() {
@@ -124,36 +151,15 @@ char verCasillaTablero(Tablero tablero, Casilla casilla) {
 
 
 int colocarFicha(Tablero tablero, Casilla casilla, char color) {
-    DEBUG_PRINT("Poniendo ficha %c en %c%c\n", color, casilla.columna, casilla.fila);
-    if(!(dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == CASILLA_VACIA && colorValido(color))) {
-        DEBUG_PRINT("No la pudo poner: no cumplia prerequisitos\n");
-        return FICHAILEGAL;
-    }
-    DEBUG_PRINT("Valida de base\n");
-    int encontroDireccionValida = 0;
-    for (int mov_fila = -1; mov_fila <= 1; mov_fila++) {
-        for (int mov_col = -1; mov_col <= 1; mov_col++) {
-            DEBUG_PRINT("analizando %i %i: ", mov_fila, mov_col);
-            if((mov_col != 0 || mov_fila != 0) && direccionValida(tablero, color, casilla, mov_fila, mov_col)) {
-                DEBUG_PRINT("VALIDO\n");
-                encontroDireccionValida = 1;
-                marcarDireccion(tablero, color, casilla, mov_fila, mov_col);
-            } else {
-                DEBUG_PRINT("INVALIDO\n");
-            }
-        }
-    }
-    if (encontroDireccionValida) {
-        tablero[columna2int(casilla.columna)][fila2int(casilla.fila)] = color;
-    }
-    return encontroDireccionValida ? 0 : FICHAILEGAL;
+    return colocarFichaInterno(tablero, casilla, color, 0);
 }
+
 
 
 int tieneJugada(Tablero tablero, char color) {
     int hayPosicionValida = 0;
-    for (Casilla casilla = crearCasilla("1", "A"); casilla.fila <= '8' && !hayPosicionValida; casilla = siguieteFila(casilla)) {
-        for (casilla.columna = "A"; casilla.columna <= 'H' && !hayPosicionValida; casilla = siguienteColumna(casilla)){
+    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8' && !hayPosicionValida; casilla = siguieteFila(casilla)) {
+        for (casilla.columna = 'A'; casilla.columna <= 'H' && !hayPosicionValida; casilla = siguienteColumna(casilla)){
             if(posicionEsValida(tablero, casilla, color)) {
                 hayPosicionValida = 1;
             }
@@ -165,8 +171,8 @@ int tieneJugada(Tablero tablero, char color) {
 
 void escribirTablero(FILE* archivo, Tablero tablero) {
     assert(archivo);
-    for (Casilla casilla = crearCasilla("1", "A"); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
-        for (casilla.columna = "A"; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
+    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
+        for (casilla.columna = 'A'; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
             fprintf(archivo, "%c", verCasillaTablero(tablero, casilla));
         }
         fprintf(archivo, "\n");
@@ -193,8 +199,8 @@ char darGanador(Tablero tablero) {
     char color;
     int negras = 0, blancas = 0;
     
-    for (Casilla casilla = crearCasilla("1", "A"); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
-        for (casilla.columna = "A"; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
+    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
+        for (casilla.columna = 'A'; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
             color = verCasillaTablero(tablero, casilla);
             if (color == FICHA_BLANCA) 
                 blancas++;

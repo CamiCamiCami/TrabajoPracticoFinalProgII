@@ -120,8 +120,8 @@ int casillasIguales(Casilla c1, Casilla c2) {
 
 void testSumarCasilla() {
     Casilla casilla = crearCasilla('5', 'D');
-    assert(casillasIguales(sumarCasilla(casilla, 2, 3), crearCasilla('7', 'G'))); // Suma
-    assert(casillasIguales(sumarCasilla(casilla, -2, -3), crearCasilla('3', 'A'))); // Resta
+    assert(casillasIguales(moverCasilla(casilla, 2, 3), crearCasilla('7', 'G'))); // Suma
+    assert(casillasIguales(moverCasilla(casilla, -2, -3), crearCasilla('3', 'A'))); // Resta
 }
 
 

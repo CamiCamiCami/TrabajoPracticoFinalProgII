@@ -121,7 +121,7 @@ Casilla crearCasilla(char fila, char columna);
 /* Devuelve la casilla resultante de sumarles cantidades dadas a la columna y fila de una casilla base. Toma la casilla de referencia,
  *  la cantidad de filas y la cantidad de columnas que se debe mover (pueden tomar valores negativos).
  */
-Casilla sumarCasilla(Casilla base, int movFila, int movColumna);
+Casilla moverCasilla(Casilla base, int movFila, int movColumna);
 
 
 /* Devuelve la casilla a la derecha de una casilla dada.

@@ -138,7 +138,7 @@ int main(int args, char** argv) {
         liberarTablero(tablero);
         return 0; //  ????
     }
-    if(!tieneJugada(tablero, FICHA_BLANCA) && !tieneJugada(tablero, FICHA_NEGRA)) { // Es necesario?
+    if(!tieneJugada(tablero, FICHA_BLANCA) && !tieneJugada(tablero, FICHA_NEGRA)) {
         // Termino el juego
         switch (darGanador(tablero)) {
         case FICHA_NEGRA:

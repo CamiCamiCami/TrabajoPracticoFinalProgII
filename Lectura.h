@@ -22,8 +22,8 @@
 int leerCabecera(FILE* archivo, char nombreNegro[MAXLARGONOMBRE + 1], char nombreBlanco[MAXLARGONOMBRE + 1], char* colorInicial);
 
 
-/* Determina si la siguiente linea está vacia. Toma un descriptor de archivo. Asume que el cursor del archivo esta al inicio de un linea.
- *  Si deterina que la linea está vacia, avanza el cursor hasta la siguiente linea sino lo deja igual. Devuelve 0 si la linea no está vacia y 1 en caso contrario.
+/* Determina si la siguiente linea está vacía. Toma un descriptor de archivo. Asume que el cursor del archivo esta al inicio de un linea.
+ *  Si determina que la linea está vacía, avanza el cursor hasta la siguiente linea, sino lo deja igual. Devuelve 0 si la linea no está vacía y 1 en caso contrario.
  */
 int lineaVacia(FILE* archivo);
 

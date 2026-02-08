@@ -5,9 +5,7 @@ compile
 run
 Notas.txt
 NO ABRIR
-tests/consolas
-tests/salidas
 *.out
-
-
-
+.vscode
+.mypy_cache
+tests/*

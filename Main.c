@@ -20,31 +20,31 @@ void imprimirErrorDeArchivo(char path[]) {
 } 
 
 
-/* Imprime un mensaje de error para cada tipo de error de formato. Toma un entero representando un codigo de error.
+/* Imprime un mensaje de error para cada tipo de error de formato. Toma un entero representando un código de error.
  */
 void imprimirErrorFormato(int ERROR) {
     switch (ERROR)
     {
-    case FINPREMATURO:
+    case FIN_PREMATURO:
         printf("El archivo terminó   inesperadamente antes de llegar al fin de la cabecera.\n");
         printf("El formato de la cabecera debe ser:\n\n[Nombre del Jugador1],[Color del Jugador1]\n[Nombre del Jugador2],[Color del Jugador2]\n[Color que empieza el juego]\n");
         break;
-    case NOENCONTROINFO:
+    case NO_ENCONTRO_INFO:
         printf("El formato de la cabecera debe ser:\n\n[Nombre del Jugador1],[Color del Jugador1]\n[Nombre del Jugador2],[Color del Jugador2]\n[Color que empieza el juego]\n");
         break;
-    case NOMBRELARGO:
-        printf("El nombre de uno de los jugadores es demasiado largo. El largo maximo para un nombre es de %i caracteres (contando espacios).\n", MAXLARGONOMBRE);
+    case NOMBRE_LARGO:
+        printf("El nombre de uno de los jugadores es demasiado largo. El largo máximo para un nombre es de %i caracteres (contando espacios).\n", MAX_LARGO_NOMBRE);
         break;
-    case COLORINVALIDO:
+    case COLOR_INVALIDO:
         printf("Unos de los colores en la cabecera es invalido. Los colores deben aparecer como %c (blanco) o %c (negro).\n", FICHA_BLANCA, FICHA_NEGRA);
         break;
-    case MISMOCOLOR:
-        printf("Los dos jugadores estaban asignados al mismo color. Por favor asigneles colores distintos.\n");
+    case MISMO_COLOR:
+        printf("Los dos jugadores estaban asignados al mismo color. Por favor asígneles colores distintos.\n");
         break;
-    case MISMONOMBRE:
-        printf("Los dos jugadores fueron dados el mismo nombre. Por favor asigneles nombres distintos.\n");
+    case MISMO_NOMBRE:
+        printf("Los dos jugadores fueron dados el mismo nombre. Por favor asígneles nombres distintos.\n");
         break;
-    case MALFORMATOLINEA:
+    case MAL_FORMATO_LINEA:
         printf("El formato de cada una de las lineas debe ser:\n\n[columna de la jugada][fila de la jugada]\n");
         break;
     default:
@@ -59,10 +59,10 @@ void imprimirErrorFormato(int ERROR) {
 void imprimirJugadaInvalida(int error, int nroJugada, char jugador[]) {
     switch (error)
     {
-    case PASOILEGAL:
+    case PASO_ILEGAL:
         printf("En la jugada Nro %i, %s pasó cuando tenía jugadas posibles\n", nroJugada, jugador);
         break;
-    case FICHAILEGAL:
+    case FICHA_ILEGAL:
         printf("En la jugada Nro %i, %s quiso poner una ficha en una posición no válida\n", nroJugada, jugador);
         break;
     default:
@@ -77,7 +77,7 @@ int main(int args, char** argv) {
     if(args != 3) {
         // Faltan/sobran argumentos.
         imprimirErrorDeUso();
-        return MALUSO;
+        return MAL_USO;
     }
 
     // Abre el archivo del que se va a leer
@@ -85,12 +85,12 @@ int main(int args, char** argv) {
     FILE* archivoEntrada = fopen(direccionEntrada, "r");
     if(archivoEntrada == NULL) {
         imprimirErrorDeArchivo(direccionEntrada);
-        return NOPUDOABRIR;
+        return NO_PUDO_ABRIR;
     }
     
 
     // Lee las primeras tres lineas del archivo de entrada
-    char jugadorN[MAXLARGONOMBRE + 1], jugadorB[MAXLARGONOMBRE + 1];
+    char jugadorN[MAX_LARGO_NOMBRE + 1], jugadorB[MAX_LARGO_NOMBRE + 1];
     char colorJugando;
     errorFormato = leerCabecera(archivoEntrada, jugadorN, jugadorB, &colorJugando);
     if (errorFormato) {
@@ -109,7 +109,7 @@ int main(int args, char** argv) {
         if(lineaVacia(archivoEntrada)) {
             if(tieneJugada(tablero, colorJugando)) {
                 // El jugador paso cuando tenia una jugada.
-                hizoJugadaInvalida = PASOILEGAL;
+                hizoJugadaInvalida = PASO_ILEGAL;
             } else {
                 colorJugando = colorOpuesto(colorJugando);
             }
@@ -160,7 +160,7 @@ int main(int args, char** argv) {
     if (archivoSalida == NULL) {
         // No pudo abrir correctamente el archivo de salida.
         liberarTablero(tablero);
-        return NOPUDOABRIR;
+        return NO_PUDO_ABRIR;
     }
     escribirTablero(archivoSalida, tablero);
     fprintf(archivoSalida, "%c\n", colorJugando);

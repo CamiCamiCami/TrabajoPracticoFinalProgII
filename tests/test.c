@@ -127,33 +127,33 @@ int main(int args, char** argv) {
 
     /* Tests de uso */
     resultado = llamar("%s entradas/entrada10 > consolas/consola10", ejecutable); // Falta un argumento
-    chequearTestUso(resultado, MALUSO, 1);
+    chequearTestUso(resultado, MAL_USO, 1);
 
     resultado = llamar("%s entradas/entrada10 salidas/salida10 > consolas/consola11", ejecutable); // No existe el archivo entrada10
-    chequearTestUso(resultado, NOPUDOABRIR, 2);
+    chequearTestUso(resultado, NO_PUDO_ABRIR, 2);
 
 
     /* Tests de Formato */
     resultado = llamar("%s entradas/entrada21 salidas/salida21 > consolas/consola21", ejecutable); // El archivo termina antes de terminar la cabecera
-    chequearTestFormato(resultado, FINPREMATURO, 1);
+    chequearTestFormato(resultado, FIN_PREMATURO, 1);
 
     resultado = llamar("%s entradas/entrada22 salidas/salida22 > consolas/consola22", ejecutable); // Falta informacion en la cabecera
-    chequearTestFormato(resultado, NOENCONTROINFO, 2);
+    chequearTestFormato(resultado, NO_ENCONTRO_INFO, 2);
 
     resultado = llamar("%s entradas/entrada23 salidas/salida23 > consolas/consola23", ejecutable); // Uno de los nombres dados excede el limite de 50 caracteres
-    chequearTestFormato(resultado, NOMBRELARGO, 3);
+    chequearTestFormato(resultado, NOMBRE_LARGO, 3);
 
     resultado = llamar("%s entradas/entrada24 salidas/salida24 > consolas/consola24", ejecutable); // Encontro algo distinto de 'B' o 'N' cuando esperaba un color
-    chequearTestFormato(resultado, COLORINVALIDO, 4);
+    chequearTestFormato(resultado, COLOR_INVALIDO, 4);
 
     resultado = llamar("%s entradas/entrada25 salidas/salida25 > consolas/consola25", ejecutable); // Ambos jugadores fueron dados el mismo nombre
-    chequearTestFormato(resultado, MISMOCOLOR, 5);
+    chequearTestFormato(resultado, MISMO_COLOR, 5);
 
     resultado = llamar("%s entradas/entrada26 salidas/salida26 > consolas/consola26", ejecutable); // Ambos jugadores fueron dados el mismo color
-    chequearTestFormato(resultado, MISMONOMBRE, 6);
+    chequearTestFormato(resultado, MISMO_NOMBRE, 6);
 
     resultado = llamar("%s entradas/entrada27 salidas/salida27 > consolas/consola27", ejecutable); // Una de las lineas tienes un formato desconocido
-    chequearTestFormato(resultado, MALFORMATOLINEA, 7);
+    chequearTestFormato(resultado, MAL_FORMATO_LINEA, 7);
 
 
     /* Tests de jugadas invalidas */

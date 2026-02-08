@@ -1,8 +1,8 @@
 #include "Tablero.h"
 
 
-/* Estructura Direccion */
-/* Representa una direccion de movimiento en el tablero.
+/* Estructura Dirección */
+/* Representa una dirección de movimiento en el tablero.
  */
 typedef struct __direccion
 {
@@ -55,21 +55,21 @@ void llenarCasilla(Tablero tablero, Casilla casilla, char color) {
 
 
 /* Revisa que la casilla adyacente hacia un direccion sea del color opuesto. Toma el tablero, el color de la ficha a insertar, 
- *      la posicion de insercion y la direccion a chequear.
+ *      la posición de inserción y la direccion a chequear.
  */
 int chequeaPrimeraCasillaDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertado, Direccion direccionChequear) {
     Casilla casilla = moverCasillaEnDireccion(casillaInsertado, direccionChequear);
-    return dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == colorOpuesto(colorInsertado); // Funciona siempre por cortocircuito
+    return dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == colorOpuesto(colorInsertado); // Funcióna siempre por cortocircuito
 }
 
 
 /* Revisa una direccion para ver si al otro lado de las fichas de color opuesto hay un ficha del mismo color. Toma el tablero,
- *      el color de la ficha a insertar, la posicion de insercion y la direccion a chequear.
+ *      el color de la ficha a insertar, la posición de inserción y la direccion a chequear.
  */
 int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertado, Direccion direccionChequear) {
     // Avanza hasta la segunda casilla en la direccion, porque la primera ya fue chequeada.
     Casilla casilla = moverCasillaEnDireccion(casillaInsertado, direccionChequear);
-    int direccionValida = 0; // si es valida = 1, si es invalida = -1, si todavia no se sabe = 0
+    int direccionValida = 0; // si es valida = 1, si es invalida = -1, si todavía no se sabe = 0
     while (!direccionValida) {
         if (dentroTablero(casilla) && verCasillaTablero(tablero, casilla) != CASILLA_VACIA) {
             if(verCasillaTablero(tablero, casilla) == colorInsertado) {
@@ -87,7 +87,7 @@ int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, Casilla 
 
 
 /* Determina si la ficha insertada puede capturar hacia una direccion. Toma el tablero, el color de la ficha a insertar,
- *      la posicion de insercion y la direccion a chequear.
+ *      la posición de inserción y la direccion a chequear.
  */
 int direccionValida(Tablero tablero, char colorInsertar, Casilla casillaInsertar, Direccion direccionChequear) {
     return chequeaPrimeraCasillaDireccion(tablero, colorInsertar, casillaInsertar, direccionChequear)
@@ -96,7 +96,7 @@ int direccionValida(Tablero tablero, char colorInsertar, Casilla casillaInsertar
 
 
 /* Captura todas las fichas posibles hacia una direccion. Toma el tablero, el color de la ficha a insertar,
- *      la posicion de insercion y la direccion a capturar.
+ *      la posición de inserción y la direccion a capturar.
  */
 void capturarDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertada, Direccion direccionChequear) {
     Casilla casillaMarcando = moverCasillaEnDireccion(casillaInsertada, direccionChequear);
@@ -107,15 +107,15 @@ void capturarDireccion(Tablero tablero, char colorInsertado, Casilla casillaInse
 }
 
 
-/* Coloca una ficha en el tablero. Toma un tablero, una casilla, un char representando el color de la ficha y un entero indicando si la funcion esta en modo chequear.
- *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolvera 0 si pudo colocar la ficha y FICHAILEGAL en caso contrario. 
- *  Cuando la funcion esta en modo chequear no va a cambiar el tablero en lo absoluto, solo devuelve si es posible o no poner la ficha en esa posicion.
+/* Coloca una ficha en el tablero. Toma un tablero, una casilla, un char representando el color de la ficha y un entero indicando si la función esta en modo chequear.
+ *  El argumento color debe ser FICHA_NEGRA o FICHA_BLANCA. Devolverá 0 si pudo colocar la ficha y FICHA_ILEGAL en caso contrario. 
+ *  Cuando la función esta en modo chequear no va a cambiar el tablero en lo absoluto, solo devuelve si es posible o no poner la ficha en esa posición.
  */
 int colocarFichaInterno(Tablero tablero, Casilla casilla, char color, int modoChequear) {
     DEBUG_PRINT("Poniendo ficha %c en %c%c\n", color, casilla.columna, casilla.fila);
     if(!(dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == CASILLA_VACIA && colorValido(color))) {
-        DEBUG_PRINT("No la pudo poner: no cumplia prerequisitos\n");
-        return FICHAILEGAL;
+        DEBUG_PRINT("No la pudo poner: no cumplía prerrequisitos\n");
+        return FICHA_ILEGAL;
     }
     DEBUG_PRINT("Valida de base\n");
     int encontroDireccionValida = 0;
@@ -135,22 +135,22 @@ int colocarFichaInterno(Tablero tablero, Casilla casilla, char color, int modoCh
     if (encontroDireccionValida && !modoChequear) {
         llenarCasilla(tablero, casilla, color);
     }
-    return encontroDireccionValida ? 0 : FICHAILEGAL;
+    return encontroDireccionValida ? 0 : FICHA_ILEGAL;
 }
 /* NOTA: Si está en modo chequear apenas encuentra una dirección válida puede terminar el bucle. Es decir, para que siga el bucle si está en modo chequear
- *  no debe haber encontrado una dirección válida. La condición queda modoChequear → ¬encontroDireccion, lo que es equivalente a ¬modoChequear ∨ ¬encontroDireccion.
+ *  no debe haber encontrado una dirección válida. La condición queda modoChequear → ¬encontróDireccion, lo que es equivalente a ¬modoChequear ∨ ¬encontroDireccion.
  */
 
 
-/* Revisa todas las direcciones en una posicion para determinar si es valido insertar una ficha alli.
- *      Toma el tablero, el color de la ficha a insertar y la posicion de insercion.
+/* Revisa todas las direcciones en una posición para determinar si es valido insertar una ficha allí.
+ *      Toma el tablero, el color de la ficha a insertar y la posición de inserción.
  */
-int posicionEsValida(Tablero tablero, Casilla casilla, char color) {
+int posiciónEsValida(Tablero tablero, Casilla casilla, char color) {
     return colocarFichaInterno(tablero, casilla, color, 1) == 0;
 }
 
 
-/* Funciones de libreria */
+/* Funciones de librería */
 
 
 Tablero crearTablero() {
@@ -187,21 +187,21 @@ int colocarFicha(Tablero tablero, Casilla casilla, char color) {
 
 
 int tieneJugada(Tablero tablero, char color) {
-    int hayPosicionValida = 0;
-    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8' && !hayPosicionValida; casilla = siguieteFila(casilla)) {
-        for (casilla.columna = 'A'; casilla.columna <= 'H' && !hayPosicionValida; casilla = siguienteColumna(casilla)){
-            if(posicionEsValida(tablero, casilla, color)) {
-                hayPosicionValida = 1;
+    int hayPosiciónValida = 0;
+    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8' && !hayPosiciónValida; casilla = siguienteFila(casilla)) {
+        for (casilla.columna = 'A'; casilla.columna <= 'H' && !hayPosiciónValida; casilla = siguienteColumna(casilla)){
+            if(posiciónEsValida(tablero, casilla, color)) {
+                hayPosiciónValida = 1;
             }
         }
     }
-    return hayPosicionValida;
+    return hayPosiciónValida;
 }
 
 
 void escribirTablero(FILE* archivo, Tablero tablero) {
     assert(archivo);
-    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
+    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8'; casilla = siguienteFila(casilla)) {
         for (casilla.columna = 'A'; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
             fprintf(archivo, "%c", verCasillaTablero(tablero, casilla));
         }
@@ -229,7 +229,7 @@ char darGanador(Tablero tablero) {
     char color;
     int negras = 0, blancas = 0;
     
-    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
+    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8'; casilla = siguienteFila(casilla)) {
         for (casilla.columna = 'A'; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
             color = verCasillaTablero(tablero, casilla);
             if (color == FICHA_BLANCA) 
@@ -271,6 +271,6 @@ Casilla siguienteColumna(Casilla base) {
 }
 
 
-Casilla siguieteFila(Casilla base) {
+Casilla siguienteFila(Casilla base) {
     return moverCasilla(base, 1, 0);
 }

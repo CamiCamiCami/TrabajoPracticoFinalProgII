@@ -26,7 +26,7 @@ def casillaValida(casilla: Casilla):
 
 
 def assertColorFicha(ficha: str) -> ColorFicha:
-    assert ficha == FICHA_BLANCA or ficha == FICHA_NEGRA  # Deberia cumplirse siempre si el formato del archivo de entrada es el correcto
+    assert ficha == FICHA_BLANCA or ficha == FICHA_NEGRA  # Debería cumplirse siempre si el formato del archivo de entrada es el correcto
     return ficha
 
 
@@ -67,7 +67,7 @@ def columna2indice(columna: str) -> int:
 
 
 # ###   leerArchivoEntrada
-#   Lee el archivo de entrada. Toma la direccion en la que se puede encontrar el archivo de entrada y lee el tablero sobre el que se va a jugar 
+#   Lee el archivo de entrada. Toma la dirección en la que se puede encontrar el archivo de entrada y lee el tablero sobre el que se va a jugar 
 # y el color del jugador que empieza. Devuelve una tupla con el tablero resultante y el color del jugador que va a arrancar.
 def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
     tablero: Tablero = dict()
@@ -76,16 +76,16 @@ def leerArchivoEntrada(direccionEntrada: str) -> Tuple[Tablero, ColorFicha]:
         for columna in range(1, 9):
             casilla = archivoEntrada.read(1)
             if not casilla == CASILLA_VACIA:
-                # Solo las casillas no vacias se agregan al tablero
+                # Solo las casillas no vacías se agregan al tablero
                 tablero[(fila, columna)] = assertColorFicha(casilla)
-        assert archivoEntrada.read(1) == '\n' # Deberia cumplirse siempre si el formato del archivo de entrada es el correcto
+        assert archivoEntrada.read(1) == '\n' # Debería cumplirse siempre si el formato del archivo de entrada es el correcto
     fichaInicial = assertColorFicha(archivoEntrada.read(1))
     archivoEntrada.close()
     return tablero, fichaInicial
 
 
 # ###   printTablero
-#   Imprime el tablero. Toma un tablero y lo imprime a la consola, añadiendo un borde que facilita la identificacion de las coordenadas de cada casilla.
+#   Imprime el tablero. Toma un tablero y lo imprime a la consola, añadiendo un borde que facilita la identificación de las coordenadas de cada casilla.
 def printTablero(tablero: Tablero) -> None:
     print("X|ABCDEFGH")
     print("-----------")
@@ -99,8 +99,8 @@ def printTablero(tablero: Tablero) -> None:
         print("\n", end="")
 
 
-# ###   casillasAdyacentesVacias
-#   Devuelve un conjunto con las casillas vacias adyacentes (ortogonal y diagonalmente) a la casilla dada. Toma el tablero y una casilla.
+# ###   casillasAdyacentesVacías
+#   Devuelve un conjunto con las casillas vacías adyacentes (ortogonal y diagonalmente) a la casilla dada. Toma el tablero y una casilla.
 def casillasAdyacentesVacias(tablero: Tablero, casilla: Casilla) -> set[Casilla]:
     fila, columna = casilla
     adyacentes = set()
@@ -108,13 +108,13 @@ def casillasAdyacentesVacias(tablero: Tablero, casilla: Casilla) -> set[Casilla]
         for movCol in [-1, 0, 1]:
             casillaAdyacente = (fila + movFila, columna + movCol)
             if casillaValida(casillaAdyacente) and casillaAdyacente not in tablero:
-                # Agrega casillas vacias adyacentes a casillas con fichas
+                # Agrega casillas vacías adyacentes a casillas con fichas
                 adyacentes.add(casillaAdyacente)
     return adyacentes
 
 
 # ###   encontrarCasillasAdyacentes
-#   Toma un tablero y devuelve el conjunto de todas las casillas vacias que estan adyacentes a una casilla no vacia. Aunque no todas las casillas de este conjunto
+#   Toma un tablero y devuelve el conjunto de todas las casillas vacías que están adyacentes a una casilla no vacía. Aunque no todas las casillas de este conjunto
 # son jugadas validas, si se cumple que todas las jugadas validas pertenecen al conjunto. Esto facilita eliminar candidatos de jugadas.
 def encontrarCasillasAdyacentes(tablero: Tablero) -> set[Casilla]:
     adyacentes: set[Casilla] = set()
@@ -125,9 +125,9 @@ def encontrarCasillasAdyacentes(tablero: Tablero) -> set[Casilla]:
     return adyacentes
 
 
-# ###   hayFichaTrasDireccion
-#   Revisa una direccion para ver si eventualmente aparecen una ficha del color buscado. Toma el tablero, la primer casilla que aparece en la direccion buscada, 
-# una direccion hacia la que se dirige y el color de la ficha buscada.
+# ###   hayFichaTrasDirección
+#   Revisa una dirección para ver si eventualmente aparecen una ficha del color buscado. Toma el tablero, la primer casilla que aparece en la dirección buscada, 
+# una dirección hacia la que se dirige y el color de la ficha buscada.
 def hayFichaTrasDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple[int, int], color: ColorFicha) -> bool:
     fila, columna = primerCasilla
     movFila, movCol = direccion
@@ -142,10 +142,10 @@ def hayFichaTrasDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: T
         return hayFichaTrasDireccion(tablero, (fila + movFila, columna + movCol), direccion, color)
 
 
-# ###   capturarDireccion
-#   Captura las fichas hacia una direccion dada, frenando cuando se encuentra una ficha del color buscado. Toma el tablero, la primer casilla que aparece en la , 
-# direccion buscada una direccion hacia la que se dirige y el color de la ficha buscada. Adicionalmente, el parametro opcional modificarTablero determina si las
-# fichas se capturan (son rempalazadas por fichas del color opuesto) o si solo cuenta las fichas que ese movimiento capturaria.
+# ###   capturarDirección
+#   Captura las fichas hacia una dirección dada, frenando cuando se encuentra una ficha del color buscado. Toma el tablero, la primer casilla que aparece en la , 
+# dirección buscada una dirección hacia la que se dirige y el color de la ficha buscada. Adicionalmente, el parámetro opcional modificarTablero determina si las
+# fichas se capturan (son remplazadas por fichas del color opuesto) o si solo cuenta las fichas que ese movimiento capturaría.
 def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple[int, int], color: ColorFicha, modificarTablero = True) -> int:
     fila, columna = primerCasilla
     movFila, movCol = direccion
@@ -160,8 +160,8 @@ def capturarDireccion(tablero: Tablero, primerCasilla: Casilla, direccion: Tuple
 
 
 # ###   hacerJugada
-#   Intenta hacer una jugada. Toma el tablero, la casilla donde se hara la jugada y el color de la ficha a poner. Adicionalmente, el parametro
-# modificarTablero determina si la funcion hace cambios en el tablero o si simplemente determina si la jugada se podria hacer.
+#   Intenta hacer una jugada. Toma el tablero, la casilla donde se hará la jugada y el color de la ficha a poner. Adicionalmente, el parámetro
+# modificarTablero determina si la función hace cambios en el tablero o si simplemente determina si la jugada se podría hacer.
 def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificarTablero = True) -> int:
     if casilla in tablero:
         return 0
@@ -172,7 +172,7 @@ def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificar
             primerCasillaEnDireccion = (fila + movFila, columna + movCol)
             hayFichaInicioDireccion = primerCasillaEnDireccion in tablero and tablero[primerCasillaEnDireccion] == colorOpuesto(color) # Siempre sera falso cuando movFila = movCol = 0
             if hayFichaInicioDireccion and hayFichaTrasDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color):
-                # Se puede capturar hacia esta direccion
+                # Se puede capturar hacia esta dirección
                 fichasCapturadas += capturarDireccion(tablero, primerCasillaEnDireccion, (movFila, movCol), color, modificarTablero)
     if fichasCapturadas > 0 and modificarTablero:
         tablero[casilla] = color
@@ -181,19 +181,19 @@ def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificar
 
 
 # ###   turnoBot
-#   Hace una jugada como un bot de nivel dado. Toma el tablero, un conjunto con todas las casillas vacias adyacentes a una ficha, el color del bot y el nivel de este.
+#   Hace una jugada como un bot de nivel dado. Toma el tablero, un conjunto con todas las casillas vacías adyacentes a una ficha, el color del bot y el nivel de este.
 # El nivel del bot solo puede tener valores 0 o 1. El conjunto pasado por casillasAdyacentes se modifica para reflejar el nuevo estado del tablero con la ficha. Devuelve
 # verdadero si pudo poner una ficha y falso si tuvo que pasar.
-def turnoBot(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, nivel: int) -> bool:
+def turnoBot(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, nivel: int, anteriorPaso: bool) -> bool:
     assertNivelBot(nivel)
     if nivel == 0:
-        return turnoBot0(tablero, casillasAdyacentes, colorBot)
+        return turnoBot0(tablero, casillasAdyacentes, colorBot, anteriorPaso)
     else:
-        return turnoBot1(tablero, casillasAdyacentes, colorBot)
+        return turnoBot1(tablero, casillasAdyacentes, colorBot, anteriorPaso)
 
 
 # ###   hayJugada
-#    Determina si el jugador de un color determinado tiene una jugada disponible. Toma el tablero, un conjunto con las casillas vacias adyacentes a una ficha y el color
+#    Determina si el jugador de un color determinado tiene una jugada disponible. Toma el tablero, un conjunto con las casillas vacías adyacentes a una ficha y el color
 # del jugador a evaluar.
 def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFicha) -> bool:
     enocontroJugadaValida = False
@@ -204,18 +204,17 @@ def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFi
 
 
 # ###   turnoJugador
-#   Se encarga del turno del jugador. Toma el tablero, un conjunto con las casillas vacias adyacentes a una ficha y el color del jugador. Devuelve verdadero
-# si el jugador pudo poner una ficha y falso si tuvo que pasar.
-def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugador: ColorFicha) -> bool:
+#   Se encarga del turno del jugador. Toma el tablero, un conjunto con las casillas vacías adyacentes a una ficha, el color del jugador 
+# y si el jugador anterior pasó. Devuelve verdadero si el jugador pudo poner una ficha y falso si tuvo que pasar.
+def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugador: ColorFicha, anteriorPaso: bool) -> bool:
     if not hayJugada(tablero, casillasAdyacentes, colorJugador):
-        input("No tiene jugada. Presione enter para continuar")
         JUGADAS.append("")
         return False
 
     jugadaEsValida = False
     jugada = (0, 0)
     while not jugadaEsValida:
-        jugadaInput = input("Ingrese la casilla en la que desea poner su proxima ficha: ")
+        jugadaInput = input(f"Ingrese la casilla en la que desea poner su próxima ficha{" (La maquina pasó)" if anteriorPaso else ""}:")
         if not len(jugadaInput) == 2:
             print("Ingrese la casilla en el formato [columna][fila]")
         elif columna2indice(jugadaInput[0]) == -1 or fila2indice(jugadaInput[1]) == -1:
@@ -236,9 +235,9 @@ def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugado
      
 
 # ### turnoBot0
-#   Elige una jugada aleatoria entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacias adyacentes a una ficha y el color del bot.
-# Devuelve verdadero si encontro una jugada valida para hacer y falso si tuvo que pasar.
-def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha) -> bool:
+#   Elige una jugada aleatoria entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacías adyacentes a una ficha,
+# el color del bot y si el jugador anterior pasó. Devuelve verdadero si encontró una jugada valida para hacer y falso si tuvo que pasar.
+def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, anteriorPaso: bool) -> bool:
     hizoJugada = False
     jugada = (0, 0)
     for casilla in casillasAdyacentes:
@@ -247,18 +246,17 @@ def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
             hizoJugada = not capturas == 0
             jugada = casilla
     if hizoJugada:
-        print(f"Turno de la maquina: {casilla2str(jugada)}")
+        print(f"Turno de la maquina: {casilla2str(jugada)} {"(El jugador pasó)" if anteriorPaso else ""}")
         JUGADAS.append(casilla2str(jugada))
         actualizarCasillasAdyacentes(tablero, casillasAdyacentes, jugada)
     else:
-        print("Turno de la maquina: Paso")
         JUGADAS.append("")
     return hizoJugada
 
 # ### turnoBot1
-#   Elige la jugada que mas capturas logre entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacias adyacentes a una ficha y el color del bot.
-# devuelve verdadero si encontro una jugada valida y falso si tuvo que pasar.
-def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha):
+#   Elige la jugada que mas capturas logre entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacías adyacentes
+# a una ficha, el color del bot y si el jugador anterior pasó. Devuelve verdadero si encontró una jugada valida y falso si tuvo que pasar.
+def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, anteriorPaso: bool):
     maxCapturas = 0
     mejorJugada = (0, 0)
     for casilla in casillasAdyacentes:
@@ -267,19 +265,18 @@ def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
             maxCapturas = capturas
             mejorJugada = casilla
     if not maxCapturas == 0:
-        print(f"Turno de la maquina: {casilla2str(mejorJugada)}")
+        print(f"Turno de la maquina: {casilla2str(mejorJugada)} {"(El jugador pasó)" if anteriorPaso else ""}")
         hacerJugada(tablero, mejorJugada, colorBot)
         JUGADAS.append(casilla2str(mejorJugada))
         actualizarCasillasAdyacentes(tablero, casillasAdyacentes, mejorJugada)
     else:
-        print("Turno de la maquina: Paso")
         JUGADAS.append("")
     return not maxCapturas == 0
 
 
 # ### determinarGanador
 #   Determina que color tiene mas fichas en el tablero al final del juego. Toma un tablero terminado y devuelve FICHA_BLANCA en caso de que haya mas fichas blancas, FICHA_NEGRA 
-# si hay mas fichas negras y otra cosa (especificamente CASILLA_VACIA) en caso de empate.
+# si hay mas fichas negras y otra cosa (específicamente CASILLA_VACÍA) en caso de empate.
 def determinarGanador(tablero: Tablero) -> str:
     blanco = 0
     negro = 0
@@ -304,18 +301,17 @@ def printJUGADAS():
         print(jugada)
 
 
-def jugar(direccionEntrada: str, colorJugador: ColorFicha, nivelBot: int) -> None:
+def jugar(tablero: Tablero, colorJugando: ColorFicha, colorJugador: ColorFicha, nivelBot: int) -> None:
     colorBot = colorOpuesto(colorJugador)
-    tablero, colorJugando = leerArchivoEntrada(direccionEntrada)
     printTablero(tablero)
     casillasAdyacentes = encontrarCasillasAdyacentes(tablero)
     pasosSeguidos = 0  # Contador de cuantos jugadores seguidos pasaron (si llega a 2 significa que el juego termino) 
     while pasosSeguidos < 2:
         pudoJugar = False
         if colorJugando == colorBot:
-            pudoJugar = turnoBot(tablero, casillasAdyacentes, colorBot, nivelBot)
+            pudoJugar = turnoBot(tablero, casillasAdyacentes, colorBot, nivelBot, pasosSeguidos > 0)
         else:
-            pudoJugar = turnoJugador(tablero, casillasAdyacentes, colorJugador)
+            pudoJugar = turnoJugador(tablero, casillasAdyacentes, colorJugador, pasosSeguidos > 0)
         if not pudoJugar:
             pasosSeguidos += 1
         else:
@@ -333,7 +329,20 @@ def jugar(direccionEntrada: str, colorJugador: ColorFicha, nivelBot: int) -> Non
         print("Hubo un empate.")
 
 
+def procesarArgumentosEntrada() -> Tuple[ColorFicha, int, Tablero, ColorFicha]:
+    # Chequea la cantidad de argumentos
+    assert(len(sys.argv) == 4)
+    # Chequea el color del jugador
+    assertColorFicha(sys.argv[2])
+    colorJugador = sys.argv[2]
+    # Chequea el nivel del bot
+    assertNivelBot(int(sys.argv[3]))
+    nivelBot = int(sys.argv[3])
+    # Abre el archivo de entrada
+    tablero, colorJugando = leerArchivoEntrada(sys.argv[1])
+    return colorJugador, nivelBot, tablero, colorJugando
+
+
 if __name__ == '__main__':
-    colorJugador = assertColorFicha(sys.argv[2])
-    nivelBot = assertNivelBot(int(sys.argv[3]))
-    jugar(sys.argv[1], colorJugador, nivelBot)
+    colorJugador, nivelBot, tablero, colorJugando = procesarArgumentosEntrada()
+    jugar(tablero, colorJugando, colorJugador, nivelBot)

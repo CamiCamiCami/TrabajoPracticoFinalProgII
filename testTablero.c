@@ -29,7 +29,7 @@ void testCrearTablero() {
     Tablero tab = crearTablero();
     for (int fila = 0; fila < 8; fila++) {
         for (int col = 0; col < 8; col++) {
-            DEBUG_PRINT("testCrearTablero: testeando %i|%i\n", fila, col);
+            DEBUG_PRINT("testCrearTablero: probando %i|%i\n", fila, col);
             if (fila < 3 || fila > 4 || col < 3 || col > 4) {
                 assert(tab[col][fila] == CASILLA_VACIA);
             } else if((fila == 3 && col == 3) || (fila == 4 && col == 4)) {
@@ -47,7 +47,7 @@ void testDentroTablero() {
     assert(!dentroTablero(crearCasilla('9', 'A'))); // Afuera en el borde
     assert(!dentroTablero(crearCasilla('9', 'I'))); // Afuera en la esquina
     assert(!dentroTablero(crearCasilla('A', '5'))); // Invertidos
-    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8'; casilla = siguieteFila(casilla)) {
+    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8'; casilla = siguienteFila(casilla)) {
         for (casilla.columna = 'A'; casilla.columna <= 'H'; casilla = siguienteColumna(casilla)) {
             assert(dentroTablero(casilla)); // Todos los casos
         }
@@ -57,9 +57,9 @@ void testDentroTablero() {
 
 void testColocarFicha() {
     Tablero tab = crearTablero(), referencia = crearTablero();
-    assert(colocarFicha(tab, crearCasilla('8', 'H'), 'B') == FICHAILEGAL); // Ficha alejada
+    assert(colocarFicha(tab, crearCasilla('8', 'H'), 'B') == FICHA_ILEGAL); // Ficha alejada
     assert(tablerosIguales(tab, referencia)); // El tablero no se modifico
-    assert(colocarFicha(tab, crearCasilla('3', 'C'), 'N') == FICHAILEGAL); // Adyacente de otro color pero no captura
+    assert(colocarFicha(tab, crearCasilla('3', 'C'), 'N') == FICHA_ILEGAL); // Adyacente de otro color pero no captura
     assert(tablerosIguales(tab, referencia)); // El tablero no se modifico
 
     assert(colocarFicha(tab, crearCasilla('3', 'D'), 'N') == 0); // Jugada exitosa

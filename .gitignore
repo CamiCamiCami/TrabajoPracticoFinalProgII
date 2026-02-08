@@ -8,4 +8,4 @@ NO ABRIR
 *.out
 .vscode
 .mypy_cache
-tests/*
+test

@@ -26,7 +26,6 @@
 
 #define FIN_PREMATURO 3
 #define NO_ENCONTRO_INFO 4
-#define NOMBRE_LARGO 5
 #define COLOR_INVALIDO 6
 #define MISMO_COLOR 7
 #define MISMO_NOMBRE 8

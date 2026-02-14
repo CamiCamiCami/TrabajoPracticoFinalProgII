@@ -2,7 +2,7 @@
 
 
 /* Estructura Dirección */
-/* Representa una dirección de movimiento en el tablero.
+/* Representa una dirección de movimiento en el tablero. (Por ejemplo una diagonal hacia la izquierda)
  */
 typedef struct __direccion
 {
@@ -59,7 +59,7 @@ void llenarCasilla(Tablero tablero, Casilla casilla, char color) {
  */
 int chequeaPrimeraCasillaDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertado, Direccion direccionChequear) {
     Casilla casilla = moverCasillaEnDireccion(casillaInsertado, direccionChequear);
-    return dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == colorOpuesto(colorInsertado); // Funcióna siempre por cortocircuito
+    return dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == colorOpuesto(colorInsertado); // Funciona siempre por cortocircuito
 }
 
 
@@ -67,7 +67,6 @@ int chequeaPrimeraCasillaDireccion(Tablero tablero, char colorInsertado, Casilla
  *      el color de la ficha a insertar, la posición de inserción y la direccion a chequear.
  */
 int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertado, Direccion direccionChequear) {
-    // Avanza hasta la segunda casilla en la direccion, porque la primera ya fue chequeada.
     Casilla casilla = moverCasillaEnDireccion(casillaInsertado, direccionChequear);
     int direccionValida = 0; // si es valida = 1, si es invalida = -1, si todavía no se sabe = 0
     while (!direccionValida) {
@@ -89,14 +88,14 @@ int chequeaUltimaCasillaDireccion(Tablero tablero, char colorInsertado, Casilla 
 /* Determina si la ficha insertada puede capturar hacia una direccion. Toma el tablero, el color de la ficha a insertar,
  *      la posición de inserción y la direccion a chequear.
  */
-int direccionValida(Tablero tablero, char colorInsertar, Casilla casillaInsertar, Direccion direccionChequear) {
-    return chequeaPrimeraCasillaDireccion(tablero, colorInsertar, casillaInsertar, direccionChequear)
-        && chequeaUltimaCasillaDireccion(tablero, colorInsertar, casillaInsertar, direccionChequear);
+int direccionValida(Tablero tablero, char colorInsertar, Casilla casillaInsertada, Direccion direccionChequear) {
+    return chequeaPrimeraCasillaDireccion(tablero, colorInsertar, casillaInsertada, direccionChequear)
+        && chequeaUltimaCasillaDireccion(tablero, colorInsertar, casillaInsertada, direccionChequear);
 }
 
 
 /* Captura todas las fichas posibles hacia una direccion. Toma el tablero, el color de la ficha a insertar,
- *      la posición de inserción y la direccion a capturar.
+ *      la posición de inserción y la direccion a capturar. Asume que es válida la captura hacia esa dirección.
  */
 void capturarDireccion(Tablero tablero, char colorInsertado, Casilla casillaInsertada, Direccion direccionChequear) {
     Casilla casillaMarcando = moverCasillaEnDireccion(casillaInsertada, direccionChequear);
@@ -137,8 +136,8 @@ int colocarFichaInterno(Tablero tablero, Casilla casilla, char color, int modoCh
     }
     return encontroDireccionValida ? 0 : FICHA_ILEGAL;
 }
-/* NOTA: Si está en modo chequear apenas encuentra una dirección válida puede terminar el bucle. Es decir, para que siga el bucle si está en modo chequear
- *  no debe haber encontrado una dirección válida. La condición queda modoChequear → ¬encontróDireccion, lo que es equivalente a ¬modoChequear ∨ ¬encontroDireccion.
+/* NOTA: Si la función está en modo chequear, apenas encuentra una dirección válida puede terminar el bucle. Es decir, para que siga el bucle si está en modo chequear
+ *  no debe haber encontrado una dirección válida. La condición queda modoChequear → ¬encontróDireccion, lo que es equivalente a ¬modoChequear ∨ ¬encontróDireccion.
  */
 
 
@@ -259,10 +258,9 @@ Casilla crearCasilla(char fila, char columna) {
 
 
 Casilla moverCasilla(Casilla base, int movFila, int movColumna) {
-    Casilla nueva;
-    nueva.columna = (char)((int)base.columna + movColumna);
-    nueva.fila = (char)((int)base.fila + movFila);
-    return nueva;
+    base.columna = (char)((int)base.columna + movColumna);
+    base.fila = (char)((int)base.fila + movFila);
+    return base;
 }
 
 

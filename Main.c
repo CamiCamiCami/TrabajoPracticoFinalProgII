@@ -30,10 +30,7 @@ void imprimirErrorFormato(int ERROR) {
         printf("El formato de la cabecera debe ser:\n\n[Nombre del Jugador1],[Color del Jugador1]\n[Nombre del Jugador2],[Color del Jugador2]\n[Color que empieza el juego]\n");
         break;
     case NO_ENCONTRO_INFO:
-        printf("El formato de la cabecera debe ser:\n\n[Nombre del Jugador1],[Color del Jugador1]\n[Nombre del Jugador2],[Color del Jugador2]\n[Color que empieza el juego]\n");
-        break;
-    case NOMBRE_LARGO:
-        printf("El nombre de uno de los jugadores es demasiado largo. El largo máximo para un nombre es de %i caracteres (contando espacios).\n", MAX_LARGO_NOMBRE);
+        printf("El formato de la cabecera debe ser:\n\n[Nombre del Jugador1],[Color del Jugador1]\n[Nombre del Jugador2],[Color del Jugador2]\n[Color que empieza el juego]\n(El largo máximo para cada nombre es de %i caracteres contando espacios)\n", MAX_LARGO_NOMBRE);
         break;
     case COLOR_INVALIDO:
         printf("Unos de los colores en la cabecera es invalido. Los colores deben aparecer como %c (blanco) o %c (negro).\n", FICHA_BLANCA, FICHA_NEGRA);
@@ -140,6 +137,7 @@ int main(int args, char** argv) {
     }
     if(!tieneJugada(tablero, FICHA_BLANCA) && !tieneJugada(tablero, FICHA_NEGRA)) {
         // Termino el juego
+        imprimirTablero(tablero); // ELIMINAR
         switch (darGanador(tablero)) {
         case FICHA_NEGRA:
             printf("Gano %s, quien jugaba com las fichas negras.\n", jugadorN);
@@ -152,7 +150,7 @@ int main(int args, char** argv) {
             break;
         }
         liberarTablero(tablero);
-        return 0;
+        return EXIT_SUCCESS;
     }
         
     // El juego no termino
@@ -166,7 +164,7 @@ int main(int args, char** argv) {
     fprintf(archivoSalida, "%c\n", colorJugando);
     liberarTablero(tablero);
     fclose(archivoSalida);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 

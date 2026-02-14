@@ -23,21 +23,11 @@ void eliminarEspaciosFinales(char nombre[MAX_LARGO_NOMBRE + 1], int largo) {
 }
 
 
-/* Revisa que una cadena de caracteres no exceda MAX_LARGO_NOMBRE.
- */
-int chequearLargo(char nombre[MAX_LARGO_NOMBRE + 1]) {
-    char ultimo_caracter_array = nombre[MAX_LARGO_NOMBRE];
-    nombre[MAX_LARGO_NOMBRE] = '\0'; // Necesario para poder asegurar que strlen se comporta correctamente
-    int largo = strlen(nombre);
-    return largo < MAX_LARGO_NOMBRE || ultimo_caracter_array == '\0';
-}
-
-
 /* Lee una linea del archivo y asocia un nombre de jugador con un color. Toma el archivo, una cadena en la que guardar el nombre que leerá
  *  y un puntero a char donde guardar su color asociado. Devuelve 0 si leyó correctamente y un error de formato en caso contrario.
  */
 int leerNombreConColor(FILE* archivo, char nombre[MAX_LARGO_NOMBRE + 1], char* color) {
-    int asignado = fscanf(archivo, " %[^,\n], %c \n", nombre, color);
+    int asignado = fscanf(archivo, " %50[^,\n], %c \n", nombre, color); // El 50 que aparece es el valor de MAX_LARGO_NOMBRE.
     if(asignado == EOF) {
         // No pudo leer.
         return FIN_PREMATURO;
@@ -49,10 +39,6 @@ int leerNombreConColor(FILE* archivo, char nombre[MAX_LARGO_NOMBRE + 1], char* c
     if(!colorValido(*color)) {
         // El color asignado al jugador no es un color valido (blanco o negro).
         return COLOR_INVALIDO;
-    }
-    if (!chequearLargo(nombre)) {
-        // El nombre es demasiado largo.
-        return NOMBRE_LARGO;
     }
     eliminarEspaciosFinales(nombre, strlen(nombre));
     return 0;

@@ -44,7 +44,7 @@ int casillasIguales(Casilla c1, Casilla c2) {
 
 
 void testChequeaPrimeraCasillaDireccion() {
-    Tablero tablero = leerTablero("tests/TableroMedias.txt");
+    Tablero tablero = leerTablero("tests/tablerosEntrada/TableroMedias.txt");
     assert(chequeaPrimeraCasillaDireccion(tablero, 'B', crearCasilla('3', 'H'), crearDireccion(-1, -1))); // Encuentra casilla negra
     assert(!chequeaPrimeraCasillaDireccion(tablero, 'B', crearCasilla('3', 'H'), crearDireccion(0, -1))); // Encuentra casilla blanca
     assert(!chequeaPrimeraCasillaDireccion(tablero, 'B', crearCasilla('3', 'H'), crearDireccion(0, 1)));  // Se sale del tablero
@@ -52,7 +52,7 @@ void testChequeaPrimeraCasillaDireccion() {
 }
 
 void testChequeoUltimaCasillaDireccion() {
-    Tablero tablero = leerTablero("tests/TableroMedias.txt");
+    Tablero tablero = leerTablero("tests/tablerosEntrada/TableroMedias.txt");
     assert(chequeaUltimaCasillaDireccion(tablero, 'N', crearCasilla('5', 'B'), crearDireccion(0, 1))); // Encuentra casilla negra
     assert(!chequeaUltimaCasillaDireccion(tablero, 'N', crearCasilla('5', 'B'), crearDireccion(0, -1))); // Llega al borde del tablero
     liberarTablero(tablero);
@@ -60,8 +60,8 @@ void testChequeoUltimaCasillaDireccion() {
 
 
 void testCapturarDireccion() {
-    Tablero tablero = leerTablero("tests/TableroCaptura.txt");
-    Tablero esperado = leerTablero("tests/TableroEsperadoCapturarDireccion.txt");
+    Tablero tablero = leerTablero("tests/tablerosEntrada/TableroCaptura.txt");
+    Tablero esperado = leerTablero("tests/tablerosEsperados/TableroEsperadoCapturarDireccion.txt");
     capturarDireccion(tablero, 'B', crearCasilla('4', 'E'), crearDireccion(1, 0)); // Captura hacia abajo
     assert(tablerosIguales(tablero, esperado));
     liberarTablero(tablero);
@@ -70,8 +70,8 @@ void testCapturarDireccion() {
 
 
 void testColocarFichaInterno() {
-    Tablero tab = leerTablero("tests/TableroCaptura.txt");
-    Tablero inicial = leerTablero("tests/TableroCaptura.txt");
+    Tablero tab = leerTablero("tests/tablerosEntrada/TableroCaptura.txt");
+    Tablero inicial = leerTablero("tests/tablerosEntrada/TableroCaptura.txt");
     /* Problemas de prerrequisitos */ 
     assert(colocarFichaInterno(tab, crearCasilla('9', 'D'), 'N', 0) == FICHA_ILEGAL); // Casilla fuera del tablero
     assert(colocarFichaInterno(tab, crearCasilla('3', 'D'), 'C', 0) == FICHA_ILEGAL); // Color inválido
@@ -83,7 +83,7 @@ void testColocarFichaInterno() {
     assert(tablerosIguales(tab, inicial)); // Como la jugada es invalida el tablero no se modifica
 
     /* Jugada válida */
-    Tablero esperado = leerTablero("tests/TableroEsperadoColocarFicha.txt");
+    Tablero esperado = leerTablero("tests/tablerosEsperados/TableroEsperadoColocarFicha.txt");
     assert(colocarFichaInterno(tab, crearCasilla('4', 'E'), 'B', 1) == 0); // Revisa que es válida la jugada
     assert(tablerosIguales(tab, inicial)); // El tablero no se modifica
     assert(colocarFichaInterno(tab, crearCasilla('4', 'E'), 'B', 0) == 0); // Hace la jugada
@@ -96,7 +96,7 @@ void testColocarFichaInterno() {
 
 void testCrearTablero() {
     Tablero tablero = crearTablero();
-    Tablero esperado = leerTablero("tests/TableroInicial.txt");
+    Tablero esperado = leerTablero("tests/tablerosEsperados/TableroInicial.txt");
     assert(tablerosIguales(tablero, esperado)); // Los tableros siempre se inicializan al mismo estado
     liberarTablero(tablero);
     liberarTablero(esperado);
@@ -111,7 +111,7 @@ void testDentroTablero() {
 
 
 void testVerCasillaTablero() {
-    Tablero tablero = leerTablero("tests/TableroMedias.txt");
+    Tablero tablero = leerTablero("tests/tablerosEntrada/TableroMedias.txt");
     assert(verCasillaTablero(tablero, crearCasilla('2', 'E')) == FICHA_NEGRA); 
     assert(verCasillaTablero(tablero, crearCasilla('3', 'C')) == FICHA_BLANCA); 
     assert(verCasillaTablero(tablero, crearCasilla('8', 'H')) == CASILLA_VACIA);
@@ -121,8 +121,8 @@ void testVerCasillaTablero() {
 
 void testTieneJugada() {
     Tablero tab1 = crearTablero();
-    Tablero tab2 = leerTablero("tests/TableroCompleto.txt");
-    Tablero tab3 = leerTablero("tests/TableroPaso.txt");
+    Tablero tab2 = leerTablero("tests/tablerosEntrada/TableroCompleto.txt");
+    Tablero tab3 = leerTablero("tests/tablerosEntrada/TableroPaso.txt");
     /* Tienen jugada ambos jugadores */
     assert(tieneJugada(tab1, 'B'));
     assert(tieneJugada(tab1, 'N'));
@@ -139,8 +139,8 @@ void testTieneJugada() {
 
 
 void testDarGanador() {
-    Tablero tab1 = leerTablero("tests/TableroCompleto.txt");
-    Tablero tab2 = leerTablero("tests/TableroEmpate.txt");
+    Tablero tab1 = leerTablero("tests/tablerosEntrada/TableroCompleto.txt");
+    Tablero tab2 = leerTablero("tests/tablerosEntrada/TableroEmpate.txt");
     assert(darGanador(tab1) == 'B'); // Ganan las blancas
     char ganadorTab2 = darGanador(tab2);
     assert(ganadorTab2 != 'N' && ganadorTab2 != 'B'); // Empate, no gana nadie

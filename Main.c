@@ -133,11 +133,10 @@ int main(int args, char** argv) {
         imprimirJugadaInvalida(hizoJugadaInvalida, nroLinea, colorJugando == FICHA_BLANCA ? jugadorB : jugadorN);
         imprimirTablero(tablero);
         liberarTablero(tablero);
-        return 0; //  ????
+        return EXIT_SUCCESS;
     }
     if(!tieneJugada(tablero, FICHA_BLANCA) && !tieneJugada(tablero, FICHA_NEGRA)) {
         // Termino el juego
-        imprimirTablero(tablero); // ELIMINAR
         switch (darGanador(tablero)) {
         case FICHA_NEGRA:
             printf("Gano %s, quien jugaba com las fichas negras.\n", jugadorN);
@@ -157,6 +156,7 @@ int main(int args, char** argv) {
     FILE* archivoSalida = fopen(direccionSalida, "w");
     if (archivoSalida == NULL) {
         // No pudo abrir correctamente el archivo de salida.
+        imprimirErrorDeArchivo(direccionSalida);
         liberarTablero(tablero);
         return NO_PUDO_ABRIR;
     }

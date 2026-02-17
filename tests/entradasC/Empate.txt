@@ -1,5 +1,5 @@
-Francisco,N
-Santiago,B
+Francisco, N
+Santiago, B
 N
 F5
 D6

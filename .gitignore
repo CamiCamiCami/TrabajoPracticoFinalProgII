@@ -9,3 +9,5 @@ NO ABRIR
 .vscode
 .mypy_cache
 test
+.pytest_cache
+__pycache__

@@ -111,23 +111,16 @@ void capturarDireccion(Tablero tablero, char colorInsertado, Casilla casillaInse
  *  Cuando la función esta en modo chequear no va a cambiar el tablero en lo absoluto, solo devuelve si es posible o no poner la ficha en esa posición.
  */
 int colocarFichaInterno(Tablero tablero, Casilla casilla, char color, int modoChequear) {
-    DEBUG_PRINT("Poniendo ficha %c en %c%c\n", color, casilla.columna, casilla.fila);
     if(!(dentroTablero(casilla) && verCasillaTablero(tablero, casilla) == CASILLA_VACIA && colorValido(color))) {
-        DEBUG_PRINT("No la pudo poner: no cumplía prerrequisitos\n");
         return FICHA_ILEGAL;
     }
-    DEBUG_PRINT("Valida de base\n");
     int encontroDireccionValida = 0;
     for (int deltaFila = -1; deltaFila <= 1 && (!modoChequear || !encontroDireccionValida); deltaFila++) { // Ver la NOTA abajo sobre la condición (!modoChequear || !encontroDireccionValida)
         for (int deltaColumna = -1; deltaColumna <= 1  && (!modoChequear || !encontroDireccionValida); deltaColumna++) {
-            DEBUG_PRINT("analizando %i %i: ", deltaFila, deltaColumna);
             Direccion direccionChequear = crearDireccion(deltaFila, deltaColumna);
             if(direccionNoNula(direccionChequear) && direccionValida(tablero, color, casilla, direccionChequear)) {
-                DEBUG_PRINT("VALIDO\n");
                 encontroDireccionValida = 1;
                 if(!modoChequear) capturarDireccion(tablero, color, casilla, direccionChequear);
-            } else {
-                DEBUG_PRINT("INVALIDO\n");
             }
         }
     }

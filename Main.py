@@ -10,11 +10,12 @@ FILAS = ["1", "2", "3", "4", "5", "6", "7", "8"]
 COLUMNAS = ["A", "B", "C", "D", "E", "F", "G", "H"]
 
 
-### Diseño de datos
+### Tipo de datos
 Casilla = Tuple[int, int] # El primer entero representa la fila y el segundo la columna. Ambos deben estar entre 1 y 8
 ColorFicha = str # Sera siempre FICHA_BLANCA o FICHA_NEGRA
 Tablero = dict[Casilla, ColorFicha]
 JugadasPosibles = set[Casilla]
+Direccion = Tuple[int, int]
 
 
 def casilla2str(casilla: Casilla) -> str:
@@ -34,7 +35,7 @@ def colorOpuesto(ficha: ColorFicha) -> ColorFicha:
     return FICHA_BLANCA if ficha == FICHA_NEGRA else FICHA_NEGRA
 
 
-def actualizarCasillasAdyacentes(tablero: Tablero, casillasAdyacentes: set[Casilla], jugada: Casilla):
+def actualizarCasillasAdyacentes(tablero: Tablero, casillasAdyacentes: JugadasPosibles, jugada: Casilla):
     casillasAdyacentes.remove(jugada)
     casillasAdyacentes.update(casillasAdyacentesVacias(tablero, jugada))
 
@@ -131,8 +132,8 @@ def casillasAdyacentesVacias(tablero: Tablero, casilla: Casilla) -> set[Casilla]
 # ###   encontrarCasillasAdyacentes
 #   Toma un tablero y devuelve el conjunto de todas las casillas vacías que están adyacentes a una casilla no vacía. Aunque no todas las casillas de este conjunto
 # son jugadas validas, si se cumple que todas las jugadas validas pertenecen al conjunto. Esto facilita eliminar candidatos de jugadas.
-def encontrarCasillasAdyacentes(tablero: Tablero) -> set[Casilla]:
-    adyacentes: set[Casilla] = set()
+def encontrarCasillasAdyacentes(tablero: Tablero) -> JugadasPosibles:
+    adyacentes: JugadasPosibles = set()
     for fila in range(1, 9):
         for columna in range(1, 9):
             if (fila, columna) in tablero:
@@ -200,7 +201,7 @@ def hacerJugada(tablero: Tablero, casilla: Casilla, color: ColorFicha, modificar
 #   Hace una jugada como un bot de nivel dado. Toma el tablero, un conjunto con todas las casillas vacías adyacentes a una ficha, el color del bot y el nivel de este.
 # El nivel del bot solo puede tener valores 0 o 1. El conjunto pasado por casillasAdyacentes se modifica para reflejar el nuevo estado del tablero con la ficha. Devuelve
 # verdadero si pudo poner una ficha y falso si tuvo que pasar.
-def turnoBot(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, nivel: int, anteriorPaso: bool) -> bool:
+def turnoBot(tablero: Tablero, casillasAdyacentes: JugadasPosibles, colorBot: ColorFicha, nivel: int, anteriorPaso: bool) -> bool:
     if nivel == 0:
         return turnoBot0(tablero, casillasAdyacentes, colorBot, anteriorPaso)
     else:
@@ -210,7 +211,7 @@ def turnoBot(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Color
 # ###   hayJugada
 #    Determina si el jugador de un color determinado tiene una jugada disponible. Toma el tablero, un conjunto con las casillas vacías adyacentes a una ficha y el color
 # del jugador a evaluar.
-def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFicha) -> bool:
+def hayJugada(tablero: Tablero, casillasAdyacentes: JugadasPosibles, color: ColorFicha) -> bool:
     encontroJugadaValida = False
     for casilla in casillasAdyacentes:
         encontroJugadaValida = encontroJugadaValida or jugadaEsValida(tablero, casilla, color)
@@ -220,14 +221,14 @@ def hayJugada(tablero: Tablero, casillasAdyacentes: set[Casilla], color: ColorFi
 # ###   turnoJugador
 #   Se encarga del turno del jugador. Toma el tablero, un conjunto con las casillas vacías adyacentes a una ficha, el color del jugador 
 # y si el jugador anterior pasó. Devuelve verdadero si el jugador pudo poner una ficha y falso si tuvo que pasar.
-def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugador: ColorFicha, anteriorPaso: bool) -> bool:
+def turnoJugador(tablero: Tablero, casillasAdyacentes: JugadasPosibles, colorJugador: ColorFicha, anteriorPaso: bool) -> bool:
     if not hayJugada(tablero, casillasAdyacentes, colorJugador):
         return False
 
     jugadaEsValida = False
     jugada = (0, 0)
     while not jugadaEsValida:
-        jugadaInput = input(f"Ingrese la casilla en la que desea poner su próxima ficha{" (La maquina pasó)" if anteriorPaso else ""}:")
+        jugadaInput = input(f"Ingrese la casilla en la que desea poner su próxima ficha {" (La maquina pasó)" if anteriorPaso else ""}:")
         if not len(jugadaInput) == 2:
             print("Ingrese la casilla en el formato [columna][fila]")
         elif columna2indice(jugadaInput[0]) == -1 or fila2indice(jugadaInput[1]) == -1:
@@ -249,7 +250,7 @@ def turnoJugador(tablero: Tablero, casillasAdyacentes: set[Casilla], colorJugado
 # ### turnoBot0
 #   Elige una jugada aleatoria entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacías adyacentes a una ficha,
 # el color del bot y si el jugador anterior pasó. Devuelve verdadero si encontró una jugada valida para hacer y falso si tuvo que pasar.
-def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, anteriorPaso: bool) -> bool:
+def turnoBot0(tablero: Tablero, casillasAdyacentes: JugadasPosibles, colorBot: ColorFicha, anteriorPaso: bool) -> bool:
     hizoJugada = False
     jugada = (0, 0)
     comoLista = list(casillasAdyacentes)
@@ -267,7 +268,7 @@ def turnoBot0(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
 # ### turnoBot1
 #   Elige la jugada que mas capturas logre entre las posibles y la hace. Toma el tablero, un conjunto con las casillas vacías adyacentes
 # a una ficha, el color del bot y si el jugador anterior pasó. Devuelve verdadero si encontró una jugada valida y falso si tuvo que pasar.
-def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: ColorFicha, anteriorPaso: bool):
+def turnoBot1(tablero: Tablero, casillasAdyacentes: JugadasPosibles, colorBot: ColorFicha, anteriorPaso: bool):
     maxCapturas = 0
     mejorJugada = (0, 0)
     for casilla in casillasAdyacentes:
@@ -286,7 +287,7 @@ def turnoBot1(tablero: Tablero, casillasAdyacentes: set[Casilla], colorBot: Colo
 #   Determina que color tiene mas fichas en el tablero al final del juego. Toma un tablero terminado y devuelve FICHA_BLANCA en caso de que haya mas fichas blancas, FICHA_NEGRA 
 # si hay mas fichas negras y otra cosa (específicamente CASILLA_VACÍA) en caso de empate.
 def determinarGanador(tablero: Tablero) -> str:
-    blanco = 0
+    blanco = 0  
     negro = 0
     for _, ficha in tablero.items():
         if ficha == FICHA_BLANCA:
@@ -329,16 +330,8 @@ def jugar(tablero: Tablero, colorJugando: ColorFicha, colorJugador: ColorFicha, 
         print("Hubo un empate.")
 
 
-# ### procesarArgumentosEntrada
-#   Procesa los argumentos de la linea de comandos antes de empezar el juego. Devuelve una tupla con los siguientes elementos en orden:
-#       > El color con el que va a jugar el jugador.
-#       > El nivel de dificultad del bot.
-#       > El tablero inicial.
-#       > El color del jugador que empieza.
-
-
 def imprimirErrorUso():
-    print("La cantidad de argumentos es incorrecta. El formato correcto es el siguiente:")
+    print("La aplicación se debe ejecutar de la siguiente forma:")
     print("python Main.py [direccionArchivoEntrada] [colorJugador] [nivelBot]")
     print("direccionArchivoEntrada: La dirección del archivo de entrada que contiene el tablero inicial y el color del jugador que empieza")
     print("colorJugador: El color con el que va a jugar el jugador. Puede ser \"B\" o \"N\"")
@@ -366,6 +359,9 @@ if __name__ == '__main__':
     except AssertionError:
         imprimirErrorUso()
         imprimirErrorArchivoEntrada()
+    except FileNotFoundError:
+        imprimirErrorUso()
+        print(f"No se encontró el archivo {sys.argv[1]}")
     else:
         jugar(tablero, colorJugando, colorJugador, nivelBot)
     

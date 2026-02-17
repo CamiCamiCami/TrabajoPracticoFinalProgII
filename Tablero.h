@@ -7,7 +7,6 @@
 #include <assert.h>
 #include "Constantes.h"
 
-
 /* Tablero */
 /* Representa un tablero de Othello.
  * En todas las posición del Tablero solo se pueden guardar los siguientes valores por diseño:

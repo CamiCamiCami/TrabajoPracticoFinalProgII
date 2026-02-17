@@ -4,8 +4,7 @@
 /* Estructura Dirección */
 /* Representa una dirección de movimiento en el tablero. (Por ejemplo una diagonal hacia la izquierda)
  */
-typedef struct __direccion
-{
+typedef struct __direccion {
     int deltaFila;
     int deltaColumna;
 } Direccion;
@@ -137,7 +136,7 @@ int colocarFichaInterno(Tablero tablero, Casilla casilla, char color, int modoCh
 /* Revisa todas las direcciones en una posición para determinar si es valido insertar una ficha allí.
  *      Toma el tablero, el color de la ficha a insertar y la posición de inserción.
  */
-int posiciónEsValida(Tablero tablero, Casilla casilla, char color) {
+int posicionEsValida(Tablero tablero, Casilla casilla, char color) {
     return colocarFichaInterno(tablero, casilla, color, 1) == 0;
 }
 
@@ -179,15 +178,15 @@ int colocarFicha(Tablero tablero, Casilla casilla, char color) {
 
 
 int tieneJugada(Tablero tablero, char color) {
-    int hayPosiciónValida = 0;
-    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8' && !hayPosiciónValida; casilla = siguienteFila(casilla)) {
-        for (casilla.columna = 'A'; casilla.columna <= 'H' && !hayPosiciónValida; casilla = siguienteColumna(casilla)){
-            if(posiciónEsValida(tablero, casilla, color)) {
-                hayPosiciónValida = 1;
+    int hayPosicionValida = 0;
+    for (Casilla casilla = crearCasilla('1', 'A'); casilla.fila <= '8' && !hayPosicionValida; casilla = siguienteFila(casilla)) {
+        for (casilla.columna = 'A'; casilla.columna <= 'H' && !hayPosicionValida; casilla = siguienteColumna(casilla)){
+            if(posicionEsValida(tablero, casilla, color)) {
+                hayPosicionValida = 1;
             }
         }
     }
-    return hayPosiciónValida;
+    return hayPosicionValida;
 }
 
 
